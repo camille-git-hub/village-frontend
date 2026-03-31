@@ -35,18 +35,19 @@ const LoginPage = () => {
     });
   };
 
-  if (isLoading) return "...loading";
+  //if (isLoading) return "...loading";
 
   if (!isLoading && isLoggedin) {
     return <Navigate to={"/"} />;
   }
 
   return (
+    <div className="w-full h-screen flex items-center justify-center">
     <form
       className="w-1/2 px-6 py-4 my-5 mx-auto flex flex-col gap-4 shadow-sm bg-gray-900 border border-gray-700 rounded"
       onSubmit={onSubmit}
     >
-      <h1 className="text-2xl text-center">Signin</h1>
+      <h1 className="text-2xl text-center">Login</h1>
       <label className="flex items-center gap-2">
         <input
           name="email"
@@ -69,6 +70,9 @@ const LoginPage = () => {
         Login
       </button>
     </form>
+    <a href="/signup" className="text-center text-gray-300 hover:text-white">Don't have an account? Sign Up</a>
+    </div>
+
   );
 };
 

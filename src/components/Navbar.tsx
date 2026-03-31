@@ -2,19 +2,16 @@
 
 const Navbar = () => {
   return (
-    <nav className="bg-gray-900 p-4">
-      <div className="container mx-auto flex justify-between items-center">
-        <div className="text-xl font-bold">Village</div>
-        <div>
-          <a href="/" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-            Search
-          </a>
-          <a href="/about" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-            About
-          </a>
-          <a href="/contact" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-            Contact
-          </a>
+    <nav className="w-full">
+      <div className="container mx-auto px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="mt-6 text-6xl font-semibold">Village</div>
+          <ul className="hidden md:flex gap-3 bg-gray-200 rounded px-2 py-1 text-sm">
+            <li className="px-3 py-1 rounded">Listings</li>
+            <li className="px-3 py-1 rounded">Explore</li>
+            <li className="px-3 py-1 rounded">Connect</li>
+            <li className="px-3 py-1 rounded">Profile</li>
+          </ul>
         </div>
       </div>
     </nav>

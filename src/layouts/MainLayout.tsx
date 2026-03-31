@@ -1,6 +1,7 @@
 import { Outlet } from "react-router";
 import Navbar from "../components/Navbar.tsx";
 import Sidebar from "../components/Sidebar.tsx";
+import Footer from "../components/Footer.tsx";
 
 const MainLayout = () => {
   return (
@@ -12,7 +13,7 @@ const MainLayout = () => {
           <Outlet /> {/* This will render the child routes, Dashboard, Services */}
         </main>
       </div>
-      <footer>Footer</footer>
+      <Footer />
     </div>
   );
 };

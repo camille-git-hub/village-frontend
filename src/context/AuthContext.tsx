@@ -1,13 +1,14 @@
 import { useState, createContext, type ReactNode, useCallback, useContext } from "react";
 import type { AuthContextType, LoginFormData, SignUpFormData, User } from "../types/auth.ts";
-import { useNavigate } from "react-router";
+//import { useNavigate} from "react-router";
+//import { Link } from "react-router";
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [isLoggedin, setIsLoggedin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -42,7 +43,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
         );
         setIsLoggedin(true);
-        navigate("/");
+        //navigate("/");
       }
     
     } catch (error) {
@@ -68,7 +69,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error(errorData.message || "Registration failed");
       }
       setIsLoggedin(true);
-      navigate("/");
+      //navigate("/");
     } catch (error) {
       console.log(error);
     } finally {
@@ -86,7 +87,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       } catch (error) {
       console.log(error);
       } finally {
-      navigate("/login");
+      //navigate("/login");
       setIsLoggedin(false);
       setUser(null);
       }
@@ -112,7 +113,7 @@ export default AuthProvider;
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (context === null) {
     throw new Error('useAuth must be used within AuthProvider');
   }
   return context;

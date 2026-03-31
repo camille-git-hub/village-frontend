@@ -40,3 +40,7 @@ export type AuthContextType = {
   handleRegister: (data: SignUpFormData) => Promise<void>;
   handleLogout: () => void;
 };
+
+export type AuthProviderProps = {
+  children: React.ReactNode;
+};
