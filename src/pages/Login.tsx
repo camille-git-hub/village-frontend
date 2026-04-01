@@ -1,10 +1,6 @@
 import {
-  type SubmitEventHandler,
-  type ChangeEventHandler,
-  useState,
   use,
 } from "react";
-import type { LoginFormData } from "../types/auth.ts";
 import { AuthContext } from "../context/AuthContext.tsx";
 import { Navigate } from "react-router";
 import { LoginForm } from "../components/LoginForm.tsx";

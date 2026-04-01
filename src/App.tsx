@@ -1,6 +1,6 @@
 //import { SignUp } from './pages/SignUp';
 //import { Login } from './pages/Login';
-import { BrowserRouter, Route, Routes} from 'react-router';
+import { Route, Routes} from 'react-router';
 import LoginPage from './pages/Login.tsx';
 import SignUpPage from './pages/SignUp.tsx';
 import { AuthLayout } from './layouts/AuthLayout.tsx';
