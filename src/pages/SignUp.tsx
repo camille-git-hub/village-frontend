@@ -1,29 +1,27 @@
 import {
-  use
+  use,
 } from "react";
 import { AuthContext } from "../context/AuthContext.tsx";
-import { Navigate } from "react-router";
+import logo from "../assets/IconOnly_Transparent_NoBuffer.png";
 import { SignUpForm } from "../components/SignUpForm.tsx";
 
 const SignUpPage = () => {
   const context = use(AuthContext);
 
   if (!context) throw new Error("missing auth context");
-    const { isLoading, isLoggedin } = context;
-
-  //if (isLoading) return "...loading";
-
-  if (!isLoading && isLoggedin) {
-    return <Navigate to={"/"} />;
-  }
-
   return (
-    <div className="w-full h-screen flex items-center justify-center">
-    <SignUpForm />
-    <a href="/login" className="text-center text-gray-300 hover:text-white">Already have an account? Login</a>
+    <div className="h-screen flex items-center justify-center">
+        <div className="absolute scale-70 opacity-30">
+        <img src={logo} alt="Village logo" className="w-full md:w-full" />
+        </div>
+        <div className="relative z-10">
+            <div className="w-full max-w-md p-7 bg-white rounded shadow-lg">
+            <SignUpForm />
+            </div>
+        </div>
     </div>
 
   );
 };
 
-export default SignUpPage;  
+export default SignUpPage;

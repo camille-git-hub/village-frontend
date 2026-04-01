@@ -5,7 +5,7 @@ import { useNavigate} from "react-router";
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const AUTH_URL = import.meta.env.VITE_AUTH_URL || "http://localhost:4000";
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     const checkAuth = async () => {
       try {
         console.log('Checking authentication status...');
-        const response = await fetch(`${API_URL}/auth/me`, {
+        const response = await fetch(`${AUTH_URL}/auth/me`, {
           method: "GET",
           credentials: "include",
         });
@@ -49,19 +49,20 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const handleLogin = useCallback(async (data: LoginFormData) => {
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(`${AUTH_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
+        credentials: "include",
       });
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Login failed");
       }
 
-      const profileResponse = await fetch(`${API_URL}/auth/me`, {
+      const profileResponse = await fetch(`${AUTH_URL}/auth/me`, {
         method: "GET",
         credentials: "include",
       });
@@ -91,11 +92,12 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const handleRegister = useCallback(async (data: SignUpFormData) =>{
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_URL}/auth/register`, {
+      const response = await fetch(`${AUTH_URL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify(data),
       });
       if (!response.ok) {
@@ -104,7 +106,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       console.log('Registration successful, logging in...');
-      const profileResponse = await fetch(`${API_URL}/auth/me`, {
+      const profileResponse = await fetch(`${AUTH_URL}/auth/me`, {
         method: "GET",
         credentials: "include",
       });
@@ -134,7 +136,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const handleLogout = useCallback(async () => {
     setIsLoading(true)
     try {
-      await fetch(`${API_URL}/auth/logout`, {
+      await fetch(`${AUTH_URL}/auth/logout`, {
         method: "POST",
         credentials: "include",
       });

@@ -15,32 +15,11 @@ const LoginPage = () => {
 
   if (!context) throw new Error("missing auth context");
 
-  const { handleLogin, isLoading, isLoggedin } = context;
+  const { isLoggedin, isLoading } = context;
 
-  const [formData, setFormData] = useState<LoginFormData>({
-    email: "",
-    password: "",
-  });
-
-  const onSubmit: SubmitEventHandler<HTMLFormElement> = async (e) => {
-    try {
-      e.preventDefault();
-      handleLogin(formData);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setFormData((prev: LoginFormData) => {
-      return { ...prev, [e.target.name]: e.target.value };
-    });
-  };
-
-  //if (isLoading) return "...loading";
 
   if (!isLoading && isLoggedin) {
-    return <Navigate to={"/"} />;
+    return <Navigate to={"/listings"} />;
   }
 
   return (
