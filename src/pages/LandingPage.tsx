@@ -1,4 +1,3 @@
-import FullLogo from "../assets/FullLogo_Transparent.png";
 import IconOnly from "../assets/IconOnly_Transparent.png";
 import { SignUpForm } from "../components/SignUpForm";
 
@@ -6,7 +5,7 @@ export const LandingPage = () => {
   return (
     <main className="min-h-screen bg-white">
       <section className="relative">
-        <div className="container mx-auto px-6 py-12">
+        <div className="container mx-auto px-4 py-2">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-8">
             {/* LEFT: red block with logo / community image */}
             <div className="md:w-1/2 relative z-30">

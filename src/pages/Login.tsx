@@ -7,6 +7,8 @@ import {
 import type { LoginFormData } from "../types/auth.ts";
 import { AuthContext } from "../context/AuthContext.tsx";
 import { Navigate } from "react-router";
+import { LoginForm } from "../components/LoginForm.tsx";
+import logo from "../assets/IconOnly_Transparent_NoBuffer.png";
 
 const LoginPage = () => {
   const context = use(AuthContext);
@@ -42,35 +44,15 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="w-full h-screen flex items-center justify-center">
-    <form
-      className="w-1/2 px-6 py-4 my-5 mx-auto flex flex-col gap-4 shadow-sm bg-gray-900 border border-gray-700 rounded"
-      onSubmit={onSubmit}
-    >
-      <h1 className="text-2xl text-center">Login</h1>
-      <label className="flex items-center gap-2">
-        <input
-          name="email"
-          type="email"
-          onChange={handleChange}
-          className="px-4 py-2 border border-gray-700 rounded grow"
-          placeholder="Email"
-        />
-      </label>
-      <label className="flex items-center gap-2">
-        <input
-          name="password"
-          type="password"
-          onChange={handleChange}
-          className="px-4 py-2 border border-gray-700 rounded grow"
-          placeholder="Password"
-        />
-      </label>
-      <button className="px-4 py-2 bg-gray-200 text-gray-800 font-bold grow rounded cursor-pointer">
-        Login
-      </button>
-    </form>
-    <a href="/signup" className="text-center text-gray-300 hover:text-white">Don't have an account? Sign Up</a>
+    <div className="h-screen flex items-center justify-center">
+        <div className="absolute scale-70 opacity-30">
+        <img src={logo} alt="Village logo" className="w-full md:w-full" />
+        </div>
+        <div className="relative z-10">
+            <div className="w-full max-w-md p-7 bg-white rounded shadow-lg">
+            <LoginForm />
+            </div>
+        </div>
     </div>
 
   );

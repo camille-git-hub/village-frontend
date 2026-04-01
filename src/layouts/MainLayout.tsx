@@ -1,6 +1,6 @@
 import { Outlet } from "react-router";
 import Navbar from "../components/Navbar.tsx";
-import Sidebar from "../components/Sidebar.tsx";
+//import Sidebar from "../components/Sidebar.tsx";
 import Footer from "../components/Footer.tsx";
 
 const MainLayout = () => {
@@ -8,7 +8,7 @@ const MainLayout = () => {
     <div className="app-layout">
       <Navbar />
       <div className="app-container">
-        <Sidebar />
+        {/* <Sidebar /> */}
         <main className="app-content">
           <Outlet /> {/* This will render the child routes, Dashboard, Services */}
         </main>

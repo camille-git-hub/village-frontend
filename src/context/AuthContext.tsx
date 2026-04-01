@@ -1,6 +1,6 @@
-import { useState, createContext, type ReactNode, useCallback, useContext } from "react";
+import { useState, createContext, type ReactNode, useCallback, useContext, useEffect } from "react";
 import type { AuthContextType, LoginFormData, SignUpFormData, User } from "../types/auth.ts";
-//import { useNavigate} from "react-router";
+import { useNavigate} from "react-router";
 //import { Link } from "react-router";
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -8,10 +8,44 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
-  //const navigate = useNavigate();
+  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [isLoggedin, setIsLoggedin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        console.log('Checking authentication status...');
+        const response = await fetch(`${API_URL}/auth/me`, {
+          method: "GET",
+          credentials: "include",
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          console.log('Authenticated user:', userData);
+          setUser({
+            id: userData.id,
+            email: userData.email,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            roles: userData.roles || ['user'],
+          });
+          setIsLoggedin(true);
+        } else {
+          console.log('No authenticated user found');
+          setIsLoggedin(false); 
+        }
+      } catch (error) {
+        console.error('Error checking authentication status:', error);
+        setIsLoggedin(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   const handleLogin = useCallback(async (data: LoginFormData) => {
     try {
@@ -43,7 +77,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
         );
         setIsLoggedin(true);
-        //navigate("/");
+        navigate("/listings");
       }
     
     } catch (error) {
@@ -68,10 +102,30 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         const errorData = await response.json();
         throw new Error(errorData.message || "Registration failed");
       }
+
+      console.log('Registration successful, logging in...');
+      const profileResponse = await fetch(`${API_URL}/auth/me`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (profileResponse.ok) {
+        const userData = await profileResponse.json();
+        console.log('User data received:', userData);
+        setUser({
+          id: userData.id,
+          email: userData.email,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          roles: userData.roles || ['user'],
+        });
+      }
       setIsLoggedin(true);
-      //navigate("/");
+      navigate("/listings");
     } catch (error) {
       console.log(error);
+      navigate("/login");
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -84,12 +138,14 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         method: "POST",
         credentials: "include",
       });
+      console.log('Logout successful');
       } catch (error) {
       console.log(error);
       } finally {
-      //navigate("/login");
+      navigate("/login");
       setIsLoggedin(false);
       setUser(null);
+      setIsLoading(false);
       }
   }, []);
 

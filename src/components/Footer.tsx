@@ -1,6 +1,6 @@
 export const Footer = () => {
   return (
-    <footer className="bg-villagePink w-full fixed bottom-0 text-center mt-10">
+    <footer className="bg-gray-200 w-full bottom-0 p-3 shadow-md text-center">
         <p>
             Contact us: <a href="mailto:info@village.com" className="text-villageRed hover:underline">
                 info@village.com

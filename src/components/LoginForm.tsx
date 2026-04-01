@@ -4,37 +4,33 @@ import {
   useState,
   use
 } from "react";
-import type { SignUpFormData } from "../types/auth.ts";
+import type { LoginFormData } from "../types/auth.ts";
 import { AuthContext } from "../context/AuthContext.tsx";
 
 
-export const SignUpForm = () => {
-
+export const LoginForm = () => {
     const context = use(AuthContext);
 
     if (!context) throw new Error("missing auth context");
 
-    const { handleRegister } = context;
+    const { handleLogin } = context;
 
-    const [formData, setFormData] = useState<SignUpFormData>({
-    firstName: "",
-    lastName: "",
+    const [formData, setFormData] = useState<LoginFormData>({
     email: "",
-    password: "",
-    confirmPassword: ""
+    password: ""
   });
 
   const onSubmit: SubmitEventHandler<HTMLFormElement> = async (e) => {
     try {
       e.preventDefault();
-      handleRegister(formData);
+      handleLogin(formData);
     } catch (error) {
       console.log(error);
     }
   };
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setFormData((prev: SignUpFormData) => {
+    setFormData((prev: LoginFormData) => {
       return { ...prev, [e.target.name]: e.target.value };
     });
   };
@@ -44,25 +40,7 @@ export const SignUpForm = () => {
       className="w-full flex flex-col gap-4 "
       onSubmit={onSubmit}
     >
-      <h1 className="text-xl text-gray-600 text-center">Create your account</h1>
-      <label className="flex items-center gap-2">
-        <input
-          name="firstName"
-          type="text"
-          onChange={handleChange}
-          className="px-4 py-2 border border-gray-700 rounded grow"
-          placeholder="First Name"
-        />
-      </label>
-      <label className="flex items-center gap-2">
-        <input
-          name="lastName"
-          type="text"
-          onChange={handleChange}
-          className="px-4 py-2 border border-gray-700 rounded grow"
-          placeholder="Last Name"
-        />
-      </label>
+      <h1 className="text-xl text-gray-600 text-center">Login</h1>
       <label className="flex items-center gap-2">
         <input
           name="email"
@@ -81,20 +59,11 @@ export const SignUpForm = () => {
           placeholder="Password"
         />
       </label>
-      <label className="flex items-center gap-2">
-        <input
-          name="confirmPassword"
-          type="password"
-          onChange={handleChange}
-          className="px-4 py-2 border border-gray-700 rounded grow"
-          placeholder="Confirm Password"
-        />
-      </label>
       <button type="submit" className="px-4 py-2 bg-villageRed text-white font-bold grow rounded cursor-pointer">
-        Sign Up
+        Login
       </button>
       <span className="text-center text-gray-600 text-sm">
-        Already have an account? <a href="/login" className="text-villageRed hover:text-red-700">Login</a>
+        Don't have an account yet? <a href="/signup" className="text-villageRed hover:text-red-700">Sign Up</a>
       </span>
     </form>
     );
