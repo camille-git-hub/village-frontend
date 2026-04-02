@@ -9,6 +9,10 @@ import { LandingLayout } from './layouts/LandingLayout.tsx';
 import LandingPage from './pages/LandingPage.tsx';
 import Listings from './pages/Listings.tsx';
 import { useAuth } from './context/AuthContext.tsx';
+import Profile from './pages/Profile.tsx';
+import CreateEditListing from './pages/CreateEditListing.tsx';
+import { Connect } from './pages/Connect.tsx';
+import { Explore } from './pages/Explore.tsx';
 
 function App() {
   const { isLoggedin } = useAuth();
@@ -28,8 +32,11 @@ function App() {
 
         {/* Main App Routes using MainLayout */}
         <Route element={isLoggedin ? <MainLayout /> : <LandingLayout />}>
-            {/*<Route path="/profile" element={<Profile />} />*/}
+            <Route path="/profile" element={<Profile />} />
             <Route path="/listings" element={<Listings />} />
+            <Route path="/listings/new" element={<CreateEditListing />} />
+            <Route path="/explore" element={<Explore />} />
+            <Route path="/connect" element={<Connect />} />
         </Route>
       </Routes>
   );

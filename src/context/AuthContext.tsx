@@ -137,7 +137,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true)
     try {
       await fetch(`${AUTH_URL}/auth/logout`, {
-        method: "POST",
+        method: "DELETE",
         credentials: "include",
       });
       console.log('Logout successful');
