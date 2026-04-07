@@ -21,7 +21,7 @@ const Navbar = () => {
             <li><a href={isLoggedin ? "/profile" : "/login"} className="px-3 py-1 rounded">Profile</a></li>
           </ul>
         </div>
-        <div><a href="/" className="mt-4 text-6xl font-semibold">Village</a></div>
+        <div><a href={isLoggedin ? "/listings" : "/"} className="mt-4 text-6xl font-semibold">Village</a></div>
       </div>
     </nav>
   );

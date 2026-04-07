@@ -1,5 +1,3 @@
-//import { SignUp } from './pages/SignUp';
-//import { Login } from './pages/Login';
 import { Route, Routes} from 'react-router';
 import LoginPage from './pages/Login.tsx';
 import SignUpPage from './pages/SignUp.tsx';
@@ -19,25 +17,19 @@ function App() {
 
   return (
       <Routes>
-        {/* Landing Page Route */}
-        <Route element={<LandingLayout />}>
-          <Route path="/" element={<LandingPage />} />
-        </Route>
-
-        {/* Auth Routes using AuthLayout */}
-        <Route element={<AuthLayout />}>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-        </Route>
-
-        {/* Main App Routes using MainLayout */}
-        <Route element={isLoggedin ? <MainLayout /> : <LandingLayout />}>
+        {isLoggedin ? (
+          <Route element={<MainLayout />}>
             <Route path="/profile" element={<Profile />} />
             <Route path="/listings" element={<Listings />} />
             <Route path="/listings/new" element={<CreateEditListing />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/connect" element={<Connect />} />
-        </Route>
+          </Route>
+        ) : <Route element={<LandingLayout />}>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignUpPage />} />
+        </Route>}
       </Routes>
   );
 }
