@@ -2,8 +2,8 @@ import {
   use,
 } from "react";
 import { AuthContext } from "../context/AuthContext.tsx";
-//import { Navigate } from "react-router";
-//import { LoginForm } from "../components/LoginForm.tsx";
+import { Navigate } from "react-router";
+import { LoginForm } from "../components/LoginForm.tsx";
 import logo from "../assets/IconOnly_Transparent_NoBuffer.png";
 
 const LoginPage = () => {
@@ -11,12 +11,12 @@ const LoginPage = () => {
 
   if (!context) throw new Error("missing auth context");
 
-  //const { isLoggedin, isLoading } = context;
+  const { isLoggedin, isLoading } = context;
 
 
-  //if (!isLoading && isLoggedin) {
-    //return <Navigate to={"/listings"} />;
-  //}
+  if (!isLoading && isLoggedin) {
+    return <Navigate to={"/listings"} />;
+  }
 
   return (
     <div className="h-screen flex items-center justify-center">
@@ -25,7 +25,7 @@ const LoginPage = () => {
         </div>
         <div className="relative z-10">
             <div className="w-full max-w-md p-7 bg-white rounded shadow-lg">
-            {/* <LoginForm /> */}
+            <LoginForm />
             </div>
         </div>
     </div>
