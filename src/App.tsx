@@ -7,9 +7,10 @@ import LandingPage from './pages/LandingPage.tsx';
 import ListingsPage from './pages/Listings.tsx';
 import { useAuth } from './context/AuthContext.tsx';
 import Profile from './pages/Profile.tsx';
-import CreateEditListing from './pages/CreateEditListing.tsx';
+import CreateEditListing from './pages/CreateListing.tsx';
 import { Connect } from './pages/Connect.tsx';
 import { Explore } from './pages/Explore.tsx';
+import ListingDetailsPage from './pages/ListingDetailsPage.tsx';
 
 function App() {
   const { isLoggedin, isLoading } = useAuth();
@@ -25,6 +26,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/listings" element={<ListingsPage />} />
             <Route path="/listings/new" element={<CreateEditListing />} />
+            <Route path="/listing/:_id" element={<ListingDetailsPage />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/connect" element={<Connect />} />
           </Route>

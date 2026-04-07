@@ -16,10 +16,10 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
             <div />
           <ul className="hidden md:flex gap-3 bg-gray-200 rounded px-2 py-1 text-sm">
-            <li><Link to={isLoggedin ? "/listings" : "/login"} className="px-3 py-1 rounded">Listings</Link></li>
-            <li><Link to={isLoggedin ? "/explore" : "/login"} className="px-3 py-1 rounded">Explore</Link></li>
-            <li><Link to={isLoggedin ? "/connect" : "/login"} className="px-3 py-1 rounded">Connect</Link></li>
-            <li><Link to={isLoggedin ? "/profile" : "/login"} className="px-3 py-1 rounded">Profile</Link></li>
+            <li><Link to={isLoggedin ? "/listings" : "/login"} className="px-3 py-1 rounded hover:border hover:border-villageRed">Listings</Link></li>
+            <li><Link to={isLoggedin ? "/explore" : "/login"} className="px-3 py-1 rounded hover:border hover:border-villageRed">Explore</Link></li>
+            <li><Link to={isLoggedin ? "/connect" : "/login"} className="px-3 py-1 rounded hover:border hover:border-villageRed">Connect</Link></li>
+            <li><Link to={isLoggedin ? "/profile" : "/login"} className="px-3 py-1 rounded hover:border hover:border-villageRed">Profile</Link></li>
           </ul>
         </div>
         <div><a href={isLoggedin ? "/listings" : "/"} className="mt-4 text-6xl font-semibold">Village</a></div>
