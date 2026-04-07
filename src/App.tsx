@@ -1,7 +1,6 @@
 import { Route, Routes} from 'react-router';
 import LoginPage from './pages/Login.tsx';
 import SignUpPage from './pages/SignUp.tsx';
-import { AuthLayout } from './layouts/AuthLayout.tsx';
 import MainLayout from './layouts/MainLayout.tsx';
 import { LandingLayout } from './layouts/LandingLayout.tsx';
 import LandingPage from './pages/LandingPage.tsx';
