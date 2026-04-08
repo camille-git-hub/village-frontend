@@ -1,4 +1,5 @@
 export type Listing = {
+    _id: string;
     title: string;
     category: string;
     description: string;

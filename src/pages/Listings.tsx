@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import type { Listing } from "../types/listing.ts";
 
@@ -13,10 +13,6 @@ export const ListingsPage = () => {
     
     const navigate = useNavigate();
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
-    useEffect(() => {
-        fetchListings();
-    }, [filters]);
 
     const fetchListings = async () => {
         setLoading(true);
@@ -63,6 +59,7 @@ export const ListingsPage = () => {
                 <option value="altstadt">Altstadt</option>
                 <option value="stpauli">St. Pauli</option>
                 <option value="altona">Altona</option>
+                <option value="bahrenfeld">Bahrenfeld</option>
                 <option value="eimsbuettel">Eimsbüttel</option>
                 <option value="hamburg-mitte">Hamburg-Mitte</option>
                 <option value="harburg">Harburg</option>
@@ -81,11 +78,11 @@ export const ListingsPage = () => {
                 <option value="eidelstedt">Eidelstedt</option>
                 <option value="norderstedt">Norderstedt</option>
                 <option value="niendorf">Niendorf</option>
-                <option value="bahrenfeld">Bahrenfeld</option>
+                
             </select>
             <button
                 onClick={fetchListings}
-                className="bg-villagePink text-black px-4 py-2 rounded mt-2"
+                className="bg-villagePink text-black px-4 py-2 rounded mt-2 hover:bg-villageRed hover:text-white"
             >
                 Search
             </button>
@@ -108,7 +105,7 @@ export const ListingsPage = () => {
             {listings.length >= 0 && (
                 <button
                     onClick={() => navigate("/listings/new")}
-                    className="bg-villageRed text-white px-4 py-2 rounded mt-2"
+                    className="bg-villageRed text-white px-4 py-2 rounded mt-2 hover:bg-villagePink hover:text-black"
                 >
                     Add New Listing
                 </button>
