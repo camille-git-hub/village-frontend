@@ -3,7 +3,6 @@ import { useNavigate } from "react-router";
 import type { Listing } from "../types/listing.ts";
 import { ListingCard } from "../components/ListingCard.tsx";
 import { HAMBURG_NEIGHBORHOODS } from "../utils/neightborhoods.ts";
-import backgroundImage from "../assets/IconOnly_Transparent_NoBuffer.png";
 
 export const ListingsPage = () => {
     const [listings, setListings] = useState<Listing[]>([]);
