@@ -1,12 +1,19 @@
-import { useParams } from 'react-router';
-import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
+import { useEffect, useState} from 'react';
 import type { Listing } from '../types/listing.ts';
+import { ListingCard } from '../components/ListingCard.tsx';
+
 
 const ListingDetailsPage = () => {
     const params = useParams();
     console.log('Route params:', params);
     const { _id } = useParams<{ _id: string }>();
     const [listing, setListing] = useState<Listing | null>(null);
+    const navigate = useNavigate();
+
+    const handleContact = () => {
+        navigate('/connect');
+    };
 
     useEffect(() => {
         if (!_id) {
@@ -30,44 +37,29 @@ const ListingDetailsPage = () => {
         fetchListing();
     }, [_id]);
 
+    if (!listing) {
+        return (
+            <div className="pp-4 w-full lg:ml-40 lg:w-1/2 sm:w-full">
+                <h1 className="text-villageRed text-2xl font-bold mb-4 mt-10">Listing Details</h1>
+                <p>Loading listing...</p>
+            </div>
+        );
+    }
+
     return (
-    <div className="p-4 w-1/2 ml-40 mr-auto">
+    
+    <div className="p-4 w-full lg:ml-40 lg:w-1/2 sm:w-full">
+        <button onClick={() => window.history.back()} className="btn text-black bg-villagePink hover:bg-villageRed hover:text-white mb-2">
+            Back
+        </button>
       <h1 className="text-villageRed text-2xl font-bold mb-4 mt-10">Listing Details</h1>
-        <div>
-            <form className="w-full flex flex-col gap-4 mb-10 mt-5">
-                <label className="flex items-center gap-2">
-                <input name="title"
-                    type="text"
-                    value={'Title: ' + (listing?.title || "")}
-                    readOnly
-                    className="px-4 py-2 border border-gray-700 rounded grow"
-                />
-                </label>
-                <label className="flex items-center gap-2">
-                <input name="category"
-                    type="text"
-                    value={'Service offered: ' + (listing?.category || "") }
-                    readOnly
-                    className="px-4 py-2 border border-gray-700 rounded grow"
-                />
-                </label>
-                <label className="flex items-center gap-2">
-                <textarea name="description"
-                    value={listing?.description || ""}
-                    readOnly
-                    className="px-4 py-2 border border-gray-700 rounded grow h-32"
-                />
-                </label>
-                <label className="flex items-center gap-2">
-                <input name="neighborhood"
-                    type="text"
-                    value={listing?.neighborhood || ""}
-                    readOnly
-                    className="px-4 py-2 rounded grow"
-                />
-                </label>    
-            </form>
-        </div>
+        <ListingCard listing={listing} />
+        <button
+        onClick={handleContact}
+        className="bg-villageRed text-white cursor-pointer hover:bg-villagePink hover:text-black px-6 py-2 rounded mt-4"
+        >
+        Contact
+        </button>
     </div>
     );
 }

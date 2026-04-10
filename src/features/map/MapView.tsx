@@ -58,7 +58,7 @@ export function MapView() {
             <div className="font-bold text-lg mb-3 text-villageRed">{listing.title}</div>
             {listing.description}
             <div className="text-sm text-gray-500 mt-2">{listing.neighborhood}</div>
-            <button className="btn text-black bg-villagePink mt-2" onClick={() => window.location.href = `/listing/${listing._id}`}>
+            <button className="btn text-black bg-villagePink mt-2" onClick={() => window.location.href = `/listings/${listing._id}`}>
               View Details
             </button>
           </Popup>

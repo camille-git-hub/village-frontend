@@ -25,7 +25,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
           const userData = await response.json();
           console.log('Authenticated user:', userData);
           setUser({
-            id: userData.id,
+            _id: userData._id,
             email: userData.email,
             firstName: userData.firstName,
             lastName: userData.lastName,
@@ -70,7 +70,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (profileResponse.ok) {
         const userData = await profileResponse.json();
         setUser({
-          id: userData.id,
+          _id: userData._id,
           email: userData.email,
           firstName: userData.firstName,
           lastName: userData.lastName,
@@ -115,7 +115,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         const userData = await profileResponse.json();
         console.log('User data received:', userData);
         setUser({
-          id: userData.id,
+          _id: userData._id,
           email: userData.email,
           firstName: userData.firstName,
           lastName: userData.lastName,

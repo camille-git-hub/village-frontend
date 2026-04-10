@@ -11,6 +11,7 @@ import CreateEditListing from './pages/CreateListing.tsx';
 import { Connect } from './pages/Connect.tsx';
 import { Explore } from './pages/Explore.tsx';
 import ListingDetailsPage from './pages/ListingDetailsPage.tsx';
+import { EditListingPage } from './pages/EditListingPage.tsx';
 
 function App() {
   const { isLoggedin, isLoading } = useAuth();
@@ -26,9 +27,12 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/listings" element={<ListingsPage />} />
             <Route path="/listings/new" element={<CreateEditListing />} />
-            <Route path="/listing/:_id" element={<ListingDetailsPage />} />
+            <Route path="/listings/:_id" element={<ListingDetailsPage />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/connect" element={<Connect />} />
+            <Route path="/listings/:id/edit" element={<EditListingPage />} />
+            {/* <Route path="/inbox" element={<Inbox />} /> */}
+            {/* <Route path="/chat/:conversationId" element={<chat />} /> */}
           </Route>
         ) : (<Route element={<LandingLayout />}>
               <Route path="/" element={<LandingPage />} />

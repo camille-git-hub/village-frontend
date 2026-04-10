@@ -7,7 +7,7 @@ const MainLayout = () => {
   return (
     <div className="app-layout">
       <Navbar />
-      <div className="app-container">
+      <div className="app-container min-h-screen">
         {/* <Sidebar /> */}
         <main className="app-content">
           <Outlet /> {/* This will render the child routes, Dashboard, Services */}

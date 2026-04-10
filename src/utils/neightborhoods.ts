@@ -18,6 +18,14 @@ export const HAMBURG_NEIGHBORHOODS: Record<string, { lat: number; lng: number }>
   'eidelstedt': { lat: 53.5789, lng: 9.8701 },
   'norderstedt': { lat: 53.6786, lng: 10.0224 },
   'niendorf': { lat: 53.6255, lng: 9.9893 },
+  'st-pauli': { lat: 53.5508, lng: 10.0014 },
+  'sankt-georg': { lat: 53.5578, lng: 10.0164 },
+  'hafen-city': { lat: 53.5413, lng: 10.0066 },
+  'horn': { lat: 53.5572, lng: 10.1228 },
+  'wilhelmsburg': { lat: 53.4975, lng: 9.9896 },
+  'bahrenfeld': { lat: 53.5561, lng: 9.9668 },
+  'osdorf': { lat: 53.5578, lng: 9.8905 },
+  'fuhlsbüttel': { lat: 53.6667, lng: 10.0333 },
 };
 
 export function getCoordinatesFromNeighborhood(neighborhood: string) {

@@ -16,7 +16,7 @@ export type AuthResponse = {
   accessToken: string;
   refreshToken: string;
   user: {
-    id: string;
+    _id: string;
     email: string;
     firstName: string;
     lastName: string;
@@ -25,7 +25,7 @@ export type AuthResponse = {
 };
 
 export type User = {
-  id: string;
+  _id: string;
   email: string;
   firstName: string;
   lastName: string;

@@ -4,4 +4,6 @@
 @theme {
   --color-villageRed: #dc5c5c;
   --color-villagePink: #FCEAF0;
+  --font-sans: 'Onest', sans-serif;
+  --font-display: 'Cormorant Garamond', serif;
 }

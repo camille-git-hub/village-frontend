@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import type { Listing } from "../types/listing.ts";
+import { ListingCard } from "../components/ListingCard.tsx";
+import { HAMBURG_NEIGHBORHOODS } from "../utils/neightborhoods.ts";
+import backgroundImage from "../assets/IconOnly_Transparent_NoBuffer.png";
 
 export const ListingsPage = () => {
     const [listings, setListings] = useState<Listing[]>([]);
@@ -10,6 +13,7 @@ export const ListingsPage = () => {
         neighborhood: "",
         q: "",
     });
+
     
     const navigate = useNavigate();
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -23,7 +27,7 @@ export const ListingsPage = () => {
             if (filters.q) queryParams.append("q", filters.q);
 
             const response = await fetch(`${API_URL}/listings?${queryParams.toString()}`, {
-            //credentials: "include"
+            credentials: "include"
             });
 
             if (!response.ok) {
@@ -39,9 +43,13 @@ export const ListingsPage = () => {
         }
     };
 
+    useEffect(() => {
+        fetchListings();
+    }, []);
+
   return (
-    <div className="p-4 w-1/2 ml-40 mr-auto">
-      <h1 className="text-2xl font-bold mb-4">Listings Feed</h1>
+    <div className="p-4 w-full lg:ml-40 lg:w-1/2 sm:w-full">
+        <h1 className="text-2xl font-bold mb-4">Listings Feed</h1>
         <div className="mb-4">
             <input
                 type="text"
@@ -56,30 +64,11 @@ export const ListingsPage = () => {
                 className="border p-2 rounded w-full"
             >
                 <option value="">All Neighborhoods</option>
-                <option value="altstadt">Altstadt</option>
-                <option value="stpauli">St. Pauli</option>
-                <option value="altona">Altona</option>
-                <option value="bahrenfeld">Bahrenfeld</option>
-                <option value="eimsbuettel">Eimsbüttel</option>
-                <option value="hamburg-mitte">Hamburg-Mitte</option>
-                <option value="harburg">Harburg</option>
-                <option value="wandsbek">Wandsbek</option>
-                <option value="bergedorf">Bergedorf</option>
-                <option value="harburg">Harburg</option>
-                <option value="mitte">Mitte</option>
-                <option value="barmbek-nord">Barmbek-Nord</option>
-                <option value="barmbek-sued">Barmbek-Süd</option>
-                <option value="eppendorf">Eppendorf</option>
-                <option value="rotherbaum">Rotherbaum</option>
-                <option value="winterhude">Winterhude</option>
-                <option value="altona">Altona</option>
-                <option value="ottensen">Ottensen</option>
-                <option value="lurup">Lurup</option>
-                <option value="eidelstedt">Eidelstedt</option>
-                <option value="norderstedt">Norderstedt</option>
-                <option value="niendorf">Niendorf</option>
-                
+                {Object.keys(HAMBURG_NEIGHBORHOODS).map(hood => (
+                    <option key={hood} value={hood}>{hood}</option>
+                ))}
             </select>
+
             <button
                 onClick={fetchListings}
                 className="bg-villagePink text-black px-4 py-2 rounded mt-2 hover:bg-villageRed hover:text-white"
@@ -90,13 +79,8 @@ export const ListingsPage = () => {
                 {loading ? (
                     <p>Loading listings...</p>
                 ) : listings.length > 0 ? (
-                    listings.map((listing) => (
-                        <div key={listing.title} className="border rounded-lg p-4 shadow-md mb-4">
-                            <h2 className="text-xl font-bold mb-2">{listing.title}</h2>
-                            <p className="text-gray-600">{listing.description}</p>
-                            <p className="text-sm text-gray-500">{listing.category}</p>
-                            <p className="text-sm text-gray-500">{listing.neighborhood}</p>
-                        </div>
+                    listings.map((listing: Listing) => (
+                        <ListingCard key={listing._id} listing={listing} detailsButton={true} onClick={() => navigate(`/listings/${listing._id}`)} />
                     ))
                 ) : (
                     <p>No listings found.</p>
