@@ -2,17 +2,45 @@ import { useNavigate, useParams } from 'react-router';
 import { useEffect, useState} from 'react';
 import type { Listing } from '../types/listing.ts';
 import { ListingCard } from '../components/ListingCard.tsx';
+import { useAuth } from '../context/AuthContext.tsx';
 
 
 const ListingDetailsPage = () => {
+    const user = useAuth().user;
     const params = useParams();
     console.log('Route params:', params);
     const { _id } = useParams<{ _id: string }>();
     const [listing, setListing] = useState<Listing | null>(null);
     const navigate = useNavigate();
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
     const handleContact = () => {
-        navigate('/connect');
+        if (!listing) return;
+        if (listing.ownerId === user?._id) {
+            return;
+        }
+        
+        try {
+            const createChat = async () => {
+                const response = await fetch(`${API_URL}/chats`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ listingId: listing._id })
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to create or fetch chat');
+                }
+                const data = await response.json();
+                return data.data;
+            };
+
+            createChat().then((chat) => {
+                navigate(`/connect/chat/${chat._id}`);
+            });
+        } catch (error) {
+            console.error('Could not start chat. Please try again.', error);
+        }   
     };
 
     useEffect(() => {
@@ -54,12 +82,13 @@ const ListingDetailsPage = () => {
         </button>
       <h1 className="text-villageRed text-2xl font-bold mb-4 mt-10">Listing Details</h1>
         <ListingCard listing={listing} />
+        {listing && listing.ownerId !== user?._id && (
         <button
         onClick={handleContact}
         className="bg-villageRed text-white cursor-pointer hover:bg-villagePink hover:text-black px-6 py-2 rounded mt-4"
         >
         Contact
-        </button>
+        </button>)}
     </div>
     );
 }

@@ -12,6 +12,8 @@ import { Connect } from './pages/Connect.tsx';
 import { Explore } from './pages/Explore.tsx';
 import ListingDetailsPage from './pages/ListingDetailsPage.tsx';
 import { EditListingPage } from './pages/EditListingPage.tsx';
+import Inbox from './pages/Inbox.tsx';
+import ChatThread from './pages/ChatThread.tsx';
 
 function App() {
   const { isLoggedin, isLoading } = useAuth();
@@ -29,15 +31,16 @@ function App() {
             <Route path="/listings/new" element={<CreateEditListing />} />
             <Route path="/listings/:_id" element={<ListingDetailsPage />} />
             <Route path="/explore" element={<Explore />} />
-            <Route path="/connect" element={<Connect />} />
+              <Route path="/connect" element={<Inbox />} />
+              <Route path="/connect/:chatId" element={<ChatThread />} />
             <Route path="/listings/:id/edit" element={<EditListingPage />} />
-            {/* <Route path="/inbox" element={<Inbox />} /> */}
-            {/* <Route path="/chat/:conversationId" element={<chat />} /> */}
+            <Route path="/*" element={<ListingsPage />} />
           </Route>
         ) : (<Route element={<LandingLayout />}>
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignUpPage />} />
+              <Route path="/*" element={<LandingPage />} />
         </Route>)}
       </Routes>
   );
