@@ -8,7 +8,6 @@ import ListingsPage from './pages/Listings.tsx';
 import { useAuth } from './context/AuthContext.tsx';
 import Profile from './pages/Profile.tsx';
 import CreateEditListing from './pages/CreateListing.tsx';
-import { Connect } from './pages/Connect.tsx';
 import { Explore } from './pages/Explore.tsx';
 import ListingDetailsPage from './pages/ListingDetailsPage.tsx';
 import { EditListingPage } from './pages/EditListingPage.tsx';

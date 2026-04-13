@@ -18,14 +18,21 @@ const ChatThread = () => {
     const [isTyping, setIsTyping] = useState(false);
     const bottomRef = useRef<HTMLDivElement>(null);
     const [typingName, setTypingName] = useState("");
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        setLoading(true);
         if (!chatId) return;
 
         fetch(`${API_URL}/chats/${chatId}`, { credentials: 'include' })
             .then(r =>  r.json())
             .then(data => setChat(data.data))
-
+            .catch(() => {
+                console.error('Failed to load chat. Please try again.');
+                navigate('/connect');
+            }) 
+            .finally(() => setLoading(false));
+            
         fetch(`${API_URL}/chats/${chatId}/read`, { method: 'PUT', credentials: 'include' });
 
     }, [chatId]);
@@ -74,8 +81,9 @@ const ChatThread = () => {
         socket.emit("typing:start", { chatId, recipientId: other._id, senderName: user?.firstName || "Someone" 
         });
 
-        if (typingTimeout.current)
+        if (typingTimeout.current) {
             clearTimeout(typingTimeout.current);
+        }
             typingTimeout.current = setTimeout(() => {
                 socket.emit("typing:stop", { chatId, recipientId: other._id });
             }, 2000);       
