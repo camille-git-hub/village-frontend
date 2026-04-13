@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router';
-import { useEffect, useState, useRef, use } from 'react';
+import { useEffect, useState, useRef} from 'react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { useSocket } from '../context/SocketContext.tsx';
 import type { Chat, ChatMessage } from '../types/chat.ts';
@@ -12,9 +12,7 @@ const ChatThread = () => {
     const socket = useSocket();
     const { chatId } = useParams();
     const [chat, setChat] = useState<Chat | null>(null);
-    const [newMessage, setNewMessage] = useState("");
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(true);
     const [sending, setSending] = useState(false);
     const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [isTyping, setIsTyping] = useState(false);
