@@ -26,7 +26,7 @@ const ListingDetailsPage = () => {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
-                    body: JSON.stringify({ listingId: listing._id })
+                    body: JSON.stringify({ participantId: listing.ownerId })
                 });
                 if (!response.ok) {
                     throw new Error('Failed to create or fetch chat');
@@ -36,7 +36,7 @@ const ListingDetailsPage = () => {
             };
 
             createChat().then((chat) => {
-                navigate(`/connect/chat/${chat._id}`);
+                navigate(`/connect/${chat._id}`);
             });
         } catch (error) {
             console.error('Could not start chat. Please try again.', error);

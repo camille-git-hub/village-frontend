@@ -41,13 +41,13 @@ const ChatThread = () => {
 
         });
 
-        socket.on("message:typing", ({ chatId: typingChatId, senderName }: { chatId: string; senderName: string }) => {
+        socket.on("typing:started", ({ chatId: typingChatId, senderName }: { chatId: string; senderName: string }) => {
             if (typingChatId !== chatId) return;
             setIsTyping(true);
             setTypingName(senderName);
         });
 
-        socket.on("message:stopTyping", ({ chatId: stopTypingChatId }: { chatId: string }) => {
+        socket.on("typing:stopped", ({ chatId: stopTypingChatId }: { chatId: string }) => {
             if (stopTypingChatId !== chatId) return;
             setIsTyping(false);
             setTypingName("");
@@ -55,8 +55,8 @@ const ChatThread = () => {
 
         return () => {
             socket.off("message:receive");
-            socket.off("message:typing");
-            socket.off("message:stopTyping");
+            socket.off("typing:started");
+            socket.off("typing:stopped");
         };
     }, [socket, chatId]);
 
@@ -73,18 +73,18 @@ const ChatThread = () => {
         const other = getOtherParticipant();
         if (!other) return;
         
-        socket.emit("message:typing", { chatId, recipientId: other._id, senderName: user?.firstName || "Someone" 
+        socket.emit("typing:start", { chatId, recipientId: other._id, senderName: user?.firstName || "Someone" 
         });
 
-        if (typingTimeout.current) {
+        if (typingTimeout.current)
             clearTimeout(typingTimeout.current);
             typingTimeout.current = setTimeout(() => {
-                socket.emit("message:stopTyping", { chatId, recipientId: other._id });
+                socket.emit("typing:stop", { chatId, recipientId: other._id });
             }, 2000);       
-        }};
+        };
 
     const handleSendMessage = async () => {
-        if (!newMessage.trim() || !socket || !chatId || !chat || sending) return;
+        if (!text.trim() || !socket || !chatId || !chat || sending) return;
         const other = getOtherParticipant();
         if (!other) return;
 

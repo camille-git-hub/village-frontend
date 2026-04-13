@@ -1,9 +1,8 @@
 import { createContext, use, useContext, useEffect, useState} from "react";
 import { io, type Socket } from "socket.io-client";
 import { useAuth } from "./AuthContext.tsx";
-import type { User } from "../types/auth.ts";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const SocketContext = createContext<Socket | null>(null);
 
@@ -21,7 +20,7 @@ export const SocketProvider =({ children }: { children: React.ReactNode }) => {
 
         newSocket.on("connect", () => {
             console.log("Connected to Socket.IO server");
-            newSocket.emit("user: register", user._id);
+            newSocket.emit("user:register", user._id);
         });
 
         setSocket(newSocket);

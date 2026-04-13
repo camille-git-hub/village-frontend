@@ -42,7 +42,7 @@ const Inbox = () => {
                         const isUnread = chat.messages.filter(m => !m.read && m.senderId !== user?._id).length;
 
                         return (
-                            <div key={chat._id} onClick={() => navigate(`/connect/chat/${chat._id}`)} className="p-4 border rounded cursor-pointer hover:bg-gray-100">
+                            <div key={chat._id} onClick={() => navigate(`/connect/${chat._id}`)} className="p-4 border rounded cursor-pointer hover:bg-gray-100">
                                 <div className="flex justify-between items-center">
                                     <div>
                                         <p className="font-semibold">{other?.firstName} {other?.lastName}</p>
