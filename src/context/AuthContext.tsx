@@ -151,6 +151,28 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
   }, []);
 
+  const handleDeleteAccount = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${AUTH_URL}/auth/delete`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Account deletion failed");
+      }
+      console.log('Account deleted successfully');
+    } catch (error) {
+      console.log(error);
+    } finally {
+      navigate("/login");
+      setIsLoggedin(false);
+      setUser(null);
+      setIsLoading(false);
+    }
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -160,6 +182,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         handleLogout,
         isLoggedin,
         isLoading,
+        handleDeleteAccount
       }}
     >
       {children}

@@ -28,6 +28,8 @@ export const HAMBURG_NEIGHBORHOODS: Record<string, { lat: number; lng: number }>
   'fuhlsbüttel': { lat: 53.6667, lng: 10.0333 },
 };
 
+export const NEIGHBORHOODS = Object.keys(HAMBURG_NEIGHBORHOODS).map(hood => hood.charAt(0).toUpperCase() + hood.slice(1));
+
 export function getCoordinatesFromNeighborhood(neighborhood: string) {
   const normalized = neighborhood.toLowerCase().trim();
   return HAMBURG_NEIGHBORHOODS[normalized] || null;

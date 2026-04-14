@@ -1,113 +1,473 @@
-import { use } from 'react';
-import { AuthContext } from '../context/AuthContext.tsx';
-import { Link } from 'react-router';
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
-import type { Listing } from '../types/listing.ts';
-import { ListingCard } from '../components/ListingCard.tsx';
+import { use, useState, useEffect } from "react";
+import { AuthContext } from "../context/AuthContext.tsx";
+import { Link } from "react-router";
+import { ListingCard } from "../components/ListingCard.tsx";
+import type { Listing } from "../types/listing.ts";
+import { Settings, Plus, Home } from "lucide-react";
+import { NEIGHBORHOODS } from "../utils/neightborhoods.ts";
+import { HAMBURG_SERVICES } from "../utils/listing_services.ts";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+type TabType = "listings" | "new" | "account";
 
+const Profile = () => {
+  const context = use(AuthContext);
+  const [activeTab, setActiveTab] = useState<TabType>("listings");
+  
+  // My Listings state
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [loadingListings, setLoadingListings] = useState(false);
+  //const [editingId, setEditingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-export const Profile = () => {
-    const context = use(AuthContext);
-    const [listings, setListings] = useState<Listing[]>([]);
-    const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
-    
-    if (!context) throw new Error("missing auth context");
+  // Form state for New Listing
+  const [formData, setFormData] = useState({
+    title: '',
+    category: '',
+    description: '',
+    neighborhood: '',
+    city: 'hamburg',
+    address: '',
+    lat: null as number | null,
+    lng: null as number | null,
+  });
+  const [addressSuggested, setAddressSuggested] = useState<any[]>([]);
+  const [loadingForm, setLoadingForm] = useState(false);
+  const [formError, setFormError] = useState('');
+  const [formSuccess, setFormSuccess] = useState('');
 
-    const { user, handleLogout, isLoggedin, isLoading } = context;
+  if (!context) throw new Error("missing auth context");
 
-    if (!isLoading && !isLoggedin) {
-    return <Link to={"/"} />;}
+  const { user, handleLogout, isLoggedin, isLoading, handleDeleteAccount } = context;
 
-    const fetchListings = async (ownerId: string) => {
-        setLoading(true);
-        try {
-            const response = await fetch(`${API_URL}/listings/owner/${ownerId}`, {
-            credentials: "include"
-            });
-            console.log("Fetching listings for ownerId:", ownerId);
-            if (!response.ok) {
-                throw new Error("Failed to fetch listings");
-            }
-            const data = await response.json();
-            setListings(data.data || data);
-            console.log("Fetched user's listings:", data.data || data);
-        } catch (error) {
-            console.error("Error fetching user's listings:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+  if (!isLoading && !isLoggedin) {
+    return <Link to={"/"} />;
+  }
 
-    const handleDelete = async (listingId: string) => {
-        if (!confirm("Are you sure you want to delete this listing?")) {
-            return;
-        }
-        try {
-            const response = await fetch(`${API_URL}/listings/${listingId}`, {
-                method: "DELETE",
-                credentials: "include"
-            });
-            if (!response.ok) {
-                throw new Error("Failed to delete listing");
-            }
-            // Remove the deleted listing from the state
-            setListings(listings.filter((l) => l._id !== listingId));
-            console.log("Deleted listing with ID:", listingId);
-        } catch (error) {
-            console.error("Error deleting listing:", error);
-        }
-    };
+  // FETCH MY LISTINGS
+  const fetchListings = async () => {
+    if (!user?._id) return;
+    setLoadingListings(true);
+    try {
+      const response = await fetch(`${API_URL}/listings/owner/${user._id}`, {
+        credentials: "include"
+      });
+      if (!response.ok) throw new Error("Failed to fetch listings");
+      const data = await response.json();
+      setListings(data.data || data);
+    } catch (error) {
+      console.error("Error fetching listings:", error);
+    } finally {
+      setLoadingListings(false);
+    }
+  };
 
-    const handleEdit = (listingId: string) => {
-        navigate(`/listings/${listingId}/edit`);
-    };
+  // HANDLE DELETE LISTING
+  const handleDeleteListing = async (listingId: string) => {
+    if (!confirm("Are you sure you want to delete this listing?")) return;
+    setDeletingId(listingId);
+    try {
+      const response = await fetch(`${API_URL}/listings/${listingId}`, {
+        method: "DELETE",
+        credentials: "include"
+      });
+      if (!response.ok) throw new Error("Failed to delete listing");
+      setListings(listings.filter((l) => l._id !== listingId));
+    } catch (error) {
+      console.error("Error deleting listing:", error);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
-    useEffect(() => {
-        console.log("user?._id:", user?._id, user);
-        console.log("Full user object:", JSON.stringify(user, null, 2));
-        if (user?._id) {
-            fetchListings(user._id);
-        } else {
-            console.warn("User ID is not available, cannot fetch listings");
-        }
-    }, [user?._id]);
+  // HANDLE EDIT LISTING
+  const handleEditListing = (listingId: string) => {
+    window.location.href = `/listings/${listingId}/edit`;
+  };
 
-    return (
-        <div className="p-4 w-full lg:ml-40 lg:w-1/2 sm:w-full">
-        
-        <div>
-            <h1 className="text-2xl font-bold">Hi {user?.firstName} {user?.lastName}</h1>
-            <p className="text-gray-500">{user?.email}</p>
-    </div>
-        <div className="p-4 px-8 w-full border-t border-gray-300 mt-4">
-            <h3 className="text-xl font-bold mb-4">Your Listings</h3>
-            {loading ? (
-                <p>Loading...</p>
-            ) : listings.length > 0 ? (
-                <div className="w-full flex flex-col gap-4">
-                    {listings.map((listing) => (
-                        <ListingCard key={listing._id} listing={listing} onDelete={handleDelete} onEdit={handleEdit} showActions={true} /> 
-                    ))}
-                </div>
-            ) : (
-                <p>You have no listings yet.</p>
+  // NEW LISTING FORM HANDLERS
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleAddressChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setFormData(prev => ({ ...prev, address: value }));
+
+    if (value.length < 3) {
+      setAddressSuggested([]);
+      return;
+    }
+
+    // Simple address search (you can enhance this with actual geocoding)
+    try {
+      setAddressSuggested([]);
+    } catch (err) {
+      console.error('Error fetching address suggestions:', err);
+    }
+  };
+
+  const handleAddressSelect = (suggestion: any) => {
+    setFormData(prev => ({
+      ...prev,
+      address: suggestion.label,
+      lat: suggestion.y,
+      lng: suggestion.x,
+    }));
+    setAddressSuggested([]);
+  };
+
+  const handleSubmitListing = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setFormError('');
+    setFormSuccess('');
+    setLoadingForm(true);
+
+    try {
+      const response = await fetch(`${API_URL}/listings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          ...formData,
+          lat: formData.lat || 53.5511, // Hamburg default
+          lng: formData.lng || 10.2105  // Hamburg default
+        })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.message || 'Failed to create listing');
+      }
+
+      const newListing = await response.json();
+      setListings([...listings, newListing.data || newListing]);
+      
+      // Reset form
+      setFormData({
+        title: '',
+        category: '',
+        description: '',
+        neighborhood: '',
+        city: 'hamburg',
+        address: '',
+        lat: null,
+        lng: null,
+      });
+      setFormSuccess('Listing created successfully!');
+      
+      setTimeout(() => {
+        setActiveTab("listings");
+      }, 2000);
+    } catch (error) {
+      setFormError((error as Error).message || 'An error occurred');
+    } finally {
+      setLoadingForm(false);
+    }
+  };
+
+  // Load listings when tab changes
+  useEffect(() => {
+    if (activeTab === "listings") {
+      fetchListings();
+    }
+  }, [activeTab]);
+
+  // Initial load of listings
+  useEffect(() => {
+    if (user?._id) {
+      fetchListings();
+    }
+  }, [user?._id]);
+
+  return (
+    <div className="flex h-screen">
+      {/* SIDEBAR */}
+      <div className="w-64 bg-gray-50 border-r border-gray-200 flex flex-col">
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-full bg-villageRed text-white flex items-center justify-center font-bold text-lg">
+              {user?.firstName[0]}{user?.lastName[0]}
+            </div>
+            <div>
+              <p className="font-semibold">{user?.firstName} {user?.lastName}</p>
+              <p className="text-xs text-gray-500">{user?.email}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* TABS */}
+        <nav className="flex-1 overflow-y-auto">
+          <button
+            onClick={() => setActiveTab("listings")}
+            className={`w-full flex items-center gap-3 px-6 py-4 border-l-4 transition ${
+              activeTab === "listings"
+                ? "bg-white border-villageRed text-villageRed"
+                : "border-transparent text-gray-600 hover:bg-gray-100"
+            }`}
+          >
+            <Home size={20} />
+            <span className="font-medium">My Listings</span>
+            {listings.length > 0 && (
+              <span className="ml-auto bg-villageRed text-white text-xs px-2 py-1 rounded-full">
+                {listings.length}
+              </span>
             )}
-            <button onClick={() => window.location.href = "/listings/new"} className="btn text-black bg-villagePink hover:bg-villageRed hover:text-white mt-4">
-                Create New Listing
-            </button>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("new")}
+            className={`w-full flex items-center gap-3 px-6 py-4 border-l-4 transition ${
+              activeTab === "new"
+                ? "bg-white border-villageRed text-villageRed"
+                : "border-transparent text-gray-600 hover:bg-gray-100"
+            }`}
+          >
+            <Plus size={20} />
+            <span className="font-medium">New Listing</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("account")}
+            className={`w-full flex items-center gap-3 px-6 py-4 border-l-4 transition ${
+              activeTab === "account"
+                ? "bg-white border-villageRed text-villageRed"
+                : "border-transparent text-gray-600 hover:bg-gray-100"
+            }`}
+          >
+            <Settings size={20} />
+            <span className="font-medium">My Account</span>
+          </button>
+        </nav>
+
+        {/* LOGOUT BUTTON */}
+        <div className="p-4 border-t border-gray-200">
+          <button
+            onClick={handleLogout}
+            className="w-full bg-villageRed text-white py-2 rounded-lg font-medium hover:bg-villagePink hover:text-black transition"
+          >
+            Logout
+          </button>
         </div>
-        <div className="p-4 px-8 w-full">
-            <button onClick={handleLogout} className="btn text-white bg-villageRed hover:bg-villagePink hover:text-black">
-                Logout
-            </button>
+      </div>
+
+      {/* CONTENT AREA */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-6">
+          {/* MY LISTINGS TAB */}
+          {activeTab === "listings" && (
+            <div>
+              <h2 className="text-2xl font-bold mb-6">My Listings</h2>
+              {loadingListings ? (
+                <p>Loading...</p>
+              ) : listings.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-500 mb-4">You have no listings yet.</p>
+                  <button
+                    onClick={() => setActiveTab("new")}
+                    className="bg-villageRed text-white px-6 py-2 rounded-lg font-medium hover:bg-villagePink hover:text-black transition"
+                  >
+                    Create Your First Listing
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 ml-6 w-3/4">
+                  {listings.map((listing) => (
+                    <div key={listing._id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                      <ListingCard listing={listing} showActions={true} />
+                      <div className="p-2 ml-2 border-t border-gray-200 flex gap-4 ">
+                        <button
+                          onClick={() => handleEditListing(listing._id)}
+                          className="flex-1 bg-gray-200 text-black py-2 rounded font-medium hover:bg-villagePink transition"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteListing(listing._id)}
+                          disabled={deletingId === listing._id}
+                          className="flex-1 text-villageRed py-2 rounded font-medium hover:border hover:border-color-villageRed transition disabled:opacity-50"
+                        >
+                          {deletingId === listing._id ? 'Deleting...' : 'Delete'}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* NEW LISTING TAB */}
+          {activeTab === "new" && (
+            <div className="max-w-2xl">
+              <h2 className="text-2xl font-bold mb-6">Create a New Listing</h2>
+              
+              {formError && (
+                <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
+                  {formError}
+                </div>
+              )}
+              
+              {formSuccess && (
+                <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
+                  {formSuccess}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmitListing} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Title</label>
+                  <input
+                    name="title"
+                    type="text"
+                    value={formData.title}
+                    onChange={handleChange}
+                    placeholder="Listing Title"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-villageRed"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Category</label>
+                    <select
+                      name="category"
+                      value={formData.category}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-villageRed"
+                    >
+                      <option value="">Select category</option>
+                      {HAMBURG_SERVICES.map(service => (
+                        <option key={service} value={service}>{service}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Neighborhood</label>
+                    <select
+                      name="neighborhood"
+                      value={formData.neighborhood}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-villageRed"
+                    >
+                      <option value="">Select neighborhood</option>
+                      {NEIGHBORHOODS.map(hood => (
+                        <option key={hood} value={hood}>{hood}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Address</label>
+                  <input
+                    name="address"
+                    type="text"
+                    value={formData.address}
+                    onChange={handleAddressChange}
+                    placeholder="Enter address"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-villageRed"
+                  />
+                  {addressSuggested.length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      {addressSuggested.map((suggestion, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => handleAddressSelect(suggestion)}
+                          className="block w-full text-left p-2 bg-gray-100 hover:bg-gray-200 rounded text-sm"
+                        >
+                          {suggestion.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Description</label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Describe your listing..."
+                    rows={5}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-villageRed"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loadingForm}
+                  className="w-full bg-villageRed text-white py-2 rounded-lg font-medium hover:bg-villagePink hover:text-black transition disabled:opacity-50"
+                >
+                  {loadingForm ? 'Creating...' : 'Create Listing'}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* MY ACCOUNT TAB */}
+          {activeTab === "account" && (
+            <div className="max-w-2xl">
+              <h2 className="text-2xl font-bold mb-6">My Account</h2>
+              
+              <div className="space-y-6">
+                <div className="bg-white p-6 rounded-lg border border-gray-200">
+                  <h3 className="text-lg font-semibold mb-4">Account Information</h3>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600">First Name</label>
+                      <p className="text-lg">{user?.firstName}</p>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600">Last Name</label>
+                      <p className="text-lg">{user?.lastName}</p>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600">Email</label>
+                      <p className="text-lg">{user?.email}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-lg border border-gray-200">
+                  <h3 className="text-lg font-semibold mb-4">Account Statistics</h3>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <p className="text-sm text-gray-600">Total Listings</p>
+                      <p className="text-3xl font-bold text-villageRed">{listings.length}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-red-50 p-6 rounded-lg border border-red-200">
+                  <h3 className="text-lg font-semibold mb-4 text-red-700">Danger Zone</h3>
+                  <p className="text-sm text-gray-600 mb-4">Deleting your account will remove all your information and cannot be undone.</p>
+                  <button
+                    onClick={handleDeleteAccount}
+                    className="bg-red-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-600 transition"
+                  >
+                    Delete Account
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-        </div>
-    );
-}
+      </div>
+    </div>
+  );
+};
 
 export default Profile;

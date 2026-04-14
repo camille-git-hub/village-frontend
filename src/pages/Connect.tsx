@@ -238,7 +238,7 @@ const Connect = () => {
                       <div
                         key={chat._id}
                         onClick={() => openChat(chat._id)}
-                        className="p-4 bg-white border rounded-lg cursor-pointer hover:shadow-md transition"
+                        className="p-4 bg-white border rounded-lg cursor-pointer hover:shadow-md transition w-1/2"
                       >
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-center gap-3">
@@ -257,14 +257,14 @@ const Connect = () => {
                               {isUnread}
                             </span>
                           )}
-                        </div>
                         <button
                           onClick={(e) => handleDeleteChat(chat._id, e)}
                           disabled={deletingId === chat._id}
-                          className="text-sm text-red-500 hover:text-red-700 disabled:opacity-50"
+                          className="mt-4 mr-4 text-sm text-red-500 hover:text-red-600 disabled:opacity-50"
                         >
                           {deletingId === chat._id ? 'Deleting...' : 'Delete'}
                         </button>
+                        </div>
                       </div>
                     );
                   })}
