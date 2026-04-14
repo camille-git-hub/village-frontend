@@ -6,6 +6,7 @@ import type { Listing } from "../types/listing.ts";
 import { Settings, Plus, Home } from "lucide-react";
 import { NEIGHBORHOODS } from "../utils/neightborhoods.ts";
 import { HAMBURG_SERVICES } from "../utils/listing_services.ts";
+import { OpenStreetMapProvider } from "leaflet-geosearch";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -18,7 +19,6 @@ const Profile = () => {
   // My Listings state
   const [listings, setListings] = useState<Listing[]>([]);
   const [loadingListings, setLoadingListings] = useState(false);
-  //const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Form state for New Listing
@@ -36,6 +36,7 @@ const Profile = () => {
   const [loadingForm, setLoadingForm] = useState(false);
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
+  const [debounceTimer, setDebounceTimer] = useState<any>(null);
 
   if (!context) throw new Error("missing auth context");
 
@@ -96,17 +97,31 @@ const Profile = () => {
     const { value } = e.target;
     setFormData(prev => ({ ...prev, address: value }));
 
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+    }
+
     if (value.length < 3) {
       setAddressSuggested([]);
       return;
     }
 
-    // Simple address search (you can enhance this with actual geocoding)
-    try {
-      setAddressSuggested([]);
-    } catch (err) {
-      console.error('Error fetching address suggestions:', err);
-    }
+    const timer = setTimeout(async () => {
+      try {
+        const provider = new OpenStreetMapProvider();
+        const results = await provider.search({ query: `${value}, Hamburg, Germany` });
+        const hamburgResults = results.filter((r: any) => 
+          r.label.toLowerCase().includes('hamburg') || 
+          r.y < 53.7 && r.y > 53.4 && r.x < 10.5 && r.x > 9.8
+        );        
+        setAddressSuggested(hamburgResults.slice(0, 5)); 
+      } catch (err) {
+        console.error('Error fetching address suggestions:', err);
+        setAddressSuggested([]);
+      }
+    }, 500);
+
+    setDebounceTimer(timer);
   };
 
   const handleAddressSelect = (suggestion: any) => {
@@ -126,6 +141,10 @@ const Profile = () => {
     setLoadingForm(true);
 
     try {
+        if (!formData.lat || !formData.lng) {
+            throw new Error('Please select a valid address from the suggestions.');
+        }
+
       const response = await fetch(`${API_URL}/listings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
