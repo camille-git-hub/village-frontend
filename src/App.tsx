@@ -12,7 +12,7 @@ import { Explore } from './pages/Explore.tsx';
 import ListingDetailsPage from './pages/ListingDetailsPage.tsx';
 import { EditListingPage } from './pages/EditListingPage.tsx';
 import Inbox from './pages/Inbox.tsx';
-import ChatThread from './pages/ChatThread.tsx';
+import ChatPopupWindow from './components/ChatPopupWindow.tsx';
 
 function App() {
   const { isLoggedin, isLoading } = useAuth();
@@ -22,6 +22,7 @@ function App() {
   }
 
   return (
+    <>
       <Routes>
         {isLoggedin ? (
           <Route element={<MainLayout />}>
@@ -31,7 +32,6 @@ function App() {
             <Route path="/listings/:_id" element={<ListingDetailsPage />} />
             <Route path="/explore" element={<Explore />} />
               <Route path="/connect" element={<Inbox />} />
-              <Route path="/connect/:chatId" element={<ChatThread />} />
             <Route path="/listings/:id/edit" element={<EditListingPage />} />
             <Route path="/*" element={<ListingsPage />} />
           </Route>
@@ -42,6 +42,8 @@ function App() {
               <Route path="/*" element={<LandingPage />} />
         </Route>)}
       </Routes>
+      <ChatPopupWindow />
+      </>
   );
 }
 

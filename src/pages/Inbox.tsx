@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext.tsx";
 import type { Chat } from "../types/chat.ts";
+import { useChatPopup } from "../context/ChatPopupContext.tsx";
 
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -9,7 +9,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const Inbox = () => {
     const { user } = useAuth();
     const [chats, setChats] = useState<Chat[]>([]);
-    const navigate = useNavigate();
+    const { openChat } = useChatPopup();
     const [loading, setLoading] = useState(true);
     const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -65,7 +65,7 @@ const Inbox = () => {
                         const isUnread = chat.messages.filter(m => !m.read && m.senderId !== user?._id).length;
 
                         return (
-                            <div key={chat._id} onClick={() => navigate(`/connect/${chat._id}`)} className="p-4 border rounded cursor-pointer hover:bg-pink-50">
+                            <div key={chat._id} onClick={() => openChat(chat._id)} className="p-4 border rounded cursor-pointer hover:bg-pink-50">
                                 <div className="flex justify-between items-center">
                                     <div>
                                         <p className="font-semibold">{other?.firstName} {other?.lastName}</p>
@@ -73,7 +73,7 @@ const Inbox = () => {
                                         <p className="text-xs text-gray-500">{isUnread > 0 ? `${isUnread} unread` : 'All read'}</p>
                                         <button onClick={(e) => {
                                             e.stopPropagation();
-                                            navigate(`/connect/${chat._id}`);
+                                            openChat(chat._id);
                                         }} className="text-sm text-blue-400 hover:text-blue-300 mt-1">
                                             View Conversation
                                         </button>
