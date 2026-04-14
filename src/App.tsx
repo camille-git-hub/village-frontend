@@ -11,7 +11,7 @@ import CreateEditListing from './pages/CreateListing.tsx';
 import { Explore } from './pages/Explore.tsx';
 import ListingDetailsPage from './pages/ListingDetailsPage.tsx';
 import { EditListingPage } from './pages/EditListingPage.tsx';
-import Inbox from './pages/Inbox.tsx';
+import Connect from './pages/Connect.tsx';
 import ChatPopupWindow from './components/ChatPopupWindow.tsx';
 
 function App() {
@@ -31,7 +31,7 @@ function App() {
             <Route path="/listings/new" element={<CreateEditListing />} />
             <Route path="/listings/:_id" element={<ListingDetailsPage />} />
             <Route path="/explore" element={<Explore />} />
-              <Route path="/connect" element={<Inbox />} />
+              <Route path="/connect" element={<Connect />} />
             <Route path="/listings/:id/edit" element={<EditListingPage />} />
             <Route path="/*" element={<ListingsPage />} />
           </Route>
