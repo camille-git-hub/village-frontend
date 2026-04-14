@@ -87,7 +87,7 @@ const ListingDetailsPage = () => {
         onClick={handleContact}
         className="bg-villageRed text-white cursor-pointer hover:bg-villagePink hover:text-black px-6 py-2 rounded mt-4"
         >
-        Contact
+        Write a message
         </button>)}
     </div>
     );
