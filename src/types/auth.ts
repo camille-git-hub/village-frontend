@@ -39,6 +39,7 @@ export type AuthContextType = {
   handleLogin: (data: LoginFormData) => Promise<void>;
   handleRegister: (data: SignUpFormData) => Promise<void>;
   handleLogout: () => void;
+  handleDeleteAccount: () => Promise<void>;
 };
 
 export type AuthProviderProps = {
