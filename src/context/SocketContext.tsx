@@ -30,7 +30,7 @@ export const SocketProvider =({ children }: { children: React.ReactNode }) => {
             newSocket.disconnect();
             console.log("Disconnected from Socket.IO server");
         };
-    }, [isLoggedin, user]);
+    }, [isLoggedin, user, token]);
 
     return (
         <SocketContext.Provider value={socket}>

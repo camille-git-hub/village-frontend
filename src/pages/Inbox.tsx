@@ -7,12 +7,11 @@ import { useChatPopup } from "../context/ChatPopupContext.tsx";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const Inbox = () => {
-    const { user } = useAuth();
+    const { user, token } = useAuth();
     const [chats, setChats] = useState<Chat[]>([]);
     const { openChat } = useChatPopup();
     const [loading, setLoading] = useState(true);
     const [deletingId, setDeletingId] = useState<string | null>(null);
-    const token = localStorage.getItem('accessToken');
 
     useEffect(() => {
     fetch(`${API_URL}/chats`, { 

@@ -13,6 +13,7 @@ export const ListingsPage = () => {
         q: "",
     });
 
+    const neighborhoods = Array.from(new Set(listings.map((listing) => listing.neighborhood)));
     
     const navigate = useNavigate();
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -63,10 +64,11 @@ export const ListingsPage = () => {
                 className="border p-2 rounded w-full"
             >
                 <option value="">All Neighborhoods</option>
-                {Object.keys(HAMBURG_NEIGHBORHOODS).map(hood => (
-                    <option key={hood} value={hood}>{hood}</option>
+                {neighborhoods.map((n) => (
+                <option key={n} value={n}>{n}</option>
                 ))}
             </select>
+
 
             <button
                 onClick={fetchListings}
