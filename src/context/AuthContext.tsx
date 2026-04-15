@@ -48,7 +48,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     checkAuth();
-  }, [token]);
+  }, []);
 
   const handleLogin = useCallback(async (data: LoginFormData) => {
     try {
@@ -175,7 +175,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       setToken(null);
       setIsLoading(false);
       }
-  }, [token]);
+  }, []);
 
   const handleDeleteAccount = useCallback(async () => {
     setIsLoading(true);
