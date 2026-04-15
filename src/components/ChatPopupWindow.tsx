@@ -244,7 +244,7 @@ export const ChatPopupWindow = () => {
           </div>
 
           {/* Input */}
-          <form onSubmit={(e) => { e.preventDefault(); handleSend(e); }} className="p-4 border-t flex gap-2">
+          <form onSubmit={(e) => { e.preventDefault()}} className="p-4 border-t flex gap-2">
             <input
               value={text}
               onChange={e => { setText(e.target.value); handleTyping(); }}
@@ -256,10 +256,10 @@ export const ChatPopupWindow = () => {
               }}
               placeholder="Type a message…"
               className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-villageRed"
-              disabled={sending}
             />
             <button
-              type="submit"
+              type="button"
+              onClick={() => handleSend()}
               disabled={!text.trim() || sending}
               className="bg-villageRed text-white px-4 py-2 rounded-full text-sm font-semibold disabled:opacity-50"
             >
