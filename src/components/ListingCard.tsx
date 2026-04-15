@@ -7,9 +7,11 @@ type Props = {
   onEdit?: (listingId: string) => void;
   showActions?: boolean;
   detailsButton?: boolean;
+  savedButton?: boolean;
+  onSave?: () => void;
 };
 
-export const ListingCard = ({ listing, onClick, onDelete, onEdit, showActions, detailsButton }: Props) => (
+export const ListingCard = ({ listing, onClick, onSave, onDelete, onEdit, showActions, detailsButton, savedButton }: Props) => (
   <div
     className="w-full border rounded-lg p-4 shadow-sm mb-4"
   >
@@ -47,8 +49,14 @@ export const ListingCard = ({ listing, onClick, onDelete, onEdit, showActions, d
       </div>
     )}
     {detailsButton && (
-        <button onClick={onClick} className="btn p-4 mt-4 cursor-pointer">Show Details</button>
+        <button onClick={onClick} className="btn p-4 mt-4 cursor-pointer">Show details</button>
     )}
+    {savedButton && (
+        <button onClick={onSave} className="btn border border-villageRed text-villageRed hover:bg-villageRed hover:text-white p-4 mt-4 ml-2 cursor-pointer">
+          Save for later
+        </button>
+    )}
+
 
   </div>
 );

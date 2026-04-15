@@ -10,6 +10,8 @@ import { AuthContext } from "../context/AuthContext.tsx";
 
 export const LoginForm = () => {
     const context = use(AuthContext);
+    const [error, setError] = useState<string>("");
+    const [isLoading, setIsLoading] = useState(false);
 
     if (!context) throw new Error("missing auth context");
 
@@ -23,13 +25,18 @@ export const LoginForm = () => {
   const onSubmit: SubmitEventHandler<HTMLFormElement> = async (e) => {
     try {
       e.preventDefault();
-      handleLogin(formData);
+      setIsLoading(true);
+      await handleLogin(formData);
     } catch (error) {
       console.log(error);
+      setError("Login failed. Please check your credentials and try again.");
+    }finally {
+      setIsLoading(false);
     }
   };
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setError("");
     setFormData((prev: LoginFormData) => {
       return { ...prev, [e.target.name]: e.target.value };
     });
@@ -41,6 +48,11 @@ export const LoginForm = () => {
       onSubmit={onSubmit}
     >
       <h1 className="text-xl text-gray-600 text-center">Login</h1>
+      {error && (
+        <div className="p-3 bg-red-100 text-red-700 rounded text-sm">
+        {error}
+        </div>
+      )}
       <label className="flex items-center gap-2">
         <input
           name="email"
@@ -59,9 +71,15 @@ export const LoginForm = () => {
           placeholder="Password"
         />
       </label>
-      <button type="submit" className="px-4 py-2 bg-villageRed text-white font-bold grow rounded cursor-pointer">
-        Login
+      
+      <button 
+        type="submit" 
+        disabled={isLoading}
+        className="px-4 py-2 bg-villageRed text-white font-bold grow rounded cursor-pointer disabled:opacity-50"
+      >
+      {isLoading ? "Logging you in..." : "Login"}
       </button>
+      
       <span className="text-center text-gray-600 text-sm">
         Don't have an account yet? <a href="/signup" className="text-villageRed hover:text-red-700">Sign Up</a>
       </span>

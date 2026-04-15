@@ -15,6 +15,23 @@ const ListingDetailsPage = () => {
     const [listing, setListing] = useState<Listing | null>(null);
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+    const [savedListings, setSavedListings] = useState<string[]>([]);
+
+    const handleSaveListing = async (listingId: string) => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`${API_URL}/listings/${listingId}/save`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Authorization': `Bearer ${token}` },
+        });
+            if (!response.ok) throw new Error('Failed to save listing');
+            setSavedListings([...savedListings, listingId]);
+        } catch (error) {
+            console.error('Error saving listing:', error);
+        }
+    };
+
     const handleContact = async () => {
         if (!listing) return;
         if (listing.ownerId === user?._id) {
@@ -76,7 +93,7 @@ const ListingDetailsPage = () => {
             Back
         </button>
       <h1 className="text-villageRed text-2xl font-bold mb-4 mt-10">Listing Details</h1>
-        <ListingCard listing={listing} />
+        <ListingCard listing={listing} savedButton={true} onSave={() => handleSaveListing(listing._id)} />
         {listing && listing.ownerId !== user?._id && (
         <button
         onClick={handleContact}
@@ -84,6 +101,7 @@ const ListingDetailsPage = () => {
         >
         Write a message
         </button>)}
+
     </div>
     );
 }

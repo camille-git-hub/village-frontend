@@ -46,6 +46,23 @@ export const ListingsPage = () => {
         fetchListings();
     }, []);
 
+    const [savedListings, setSavedListings] = useState<string[]>([]);
+
+    const handleSaveListing = async (listingId: string) => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`${API_URL}/listings/${listingId}/save`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+        if (!response.ok) throw new Error('Failed to save listing');
+        setSavedListings([...savedListings, listingId]);
+        } catch (error) {
+        console.error('Error saving listing:', error);
+        }
+};
+
   return (
     <div className="p-4 w-full lg:ml-40 lg:w-1/2 sm:w-full">
         <h1 className="text-2xl font-bold mb-4">Listings Feed</h1>
@@ -80,7 +97,7 @@ export const ListingsPage = () => {
                     <p>Loading listings...</p>
                 ) : listings.length > 0 ? (
                     listings.map((listing: Listing) => (
-                        <ListingCard key={listing._id} listing={listing} detailsButton={true} onClick={() => navigate(`/listings/${listing._id}`)} />
+                        <ListingCard key={listing._id} listing={listing} detailsButton={true} savedButton={true} onClick={() => navigate(`/listings/${listing._id}`)} onSave={() => handleSaveListing(listing._id)} />
                     ))
                 ) : (
                     <p>No listings found.</p>
