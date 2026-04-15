@@ -87,7 +87,7 @@ const Connect = () => {
     try {
       // This endpoint might not exist yet - adjust as needed
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`${API_URL}/listings/saved`, { 
+      const response = await fetch(`${API_URL}/users/${user?._id}/saved-listings`, { 
         method: 'GET',
         credentials: 'include',
         headers: {
