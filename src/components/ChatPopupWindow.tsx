@@ -14,6 +14,7 @@ export const ChatPopupWindow = () => {
     const [chat, setChat] = useState<Chat | null>(null);
     const socket = useSocket();
     const bottomRef = useRef<HTMLDivElement>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
     const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [isTyping, setIsTyping] = useState(false);
     const [typingName, setTypingName] = useState("");
@@ -129,7 +130,10 @@ export const ChatPopupWindow = () => {
         }, 2000);
     };
 
-    const handleSend = async() => {
+    const handleSend = async(e?: React.KeyboardEvent<HTMLFormElement>) => {
+        if (e) {
+            e.preventDefault();
+        }
         if (!text.trim() || !chatId || !socket || !chat || sending) return;
         const other = getOtherParticipant();
         if (!other) return;
@@ -146,6 +150,11 @@ export const ChatPopupWindow = () => {
                 body: JSON.stringify({ content: text.trim() }),
                 credentials: "include",
             });
+
+            if (!response.ok) {
+                throw new Error('Failed to send message');
+            }
+
             const data = await response.json();
             const updatedChat = data.data;
             setChat(updatedChat);
@@ -202,7 +211,7 @@ export const ChatPopupWindow = () => {
       {/* Messages - Hidden when minimized */}
       {!popup.isMinimized && (
         <>
-          <div className="flex-1 overflow-y-auto p-4 space-y-2 h-96">
+          <div className="flex-1 overflow-y-auto p-4 space-y-2 min-h-96 max-h-96">
             {loading ? (
               <p className="text-center text-gray-500">Loading...</p>
             ) : (
@@ -230,13 +239,13 @@ export const ChatPopupWindow = () => {
                   </div>
                 )}
 
-                <div ref={bottomRef} />
+                <div ref={messagesEndRef} />
               </>
             )}
           </div>
 
           {/* Input */}
-          <div className="p-4 border-t flex gap-2">
+          <form onSubmit={handleSend} className="p-4 border-t flex gap-2">
             <input
               value={text}
               onChange={e => { setText(e.target.value); handleTyping(); }}
@@ -246,13 +255,13 @@ export const ChatPopupWindow = () => {
               disabled={sending}
             />
             <button
-              onClick={handleSend}
+              type="submit"
               disabled={!text.trim() || sending}
               className="bg-villageRed text-white px-4 py-2 rounded-full text-sm font-semibold disabled:opacity-50"
             >
               Send
             </button>
-          </div>
+          </form>
         </>
       )}
 
