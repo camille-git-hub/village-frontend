@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import type { Listing } from "../types/listing.ts";
 import { ListingCard } from "../components/ListingCard.tsx";
-import { HAMBURG_NEIGHBORHOODS } from "../utils/neightborhoods.ts";
 
 export const ListingsPage = () => {
     const [listings, setListings] = useState<Listing[]>([]);
