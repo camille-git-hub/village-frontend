@@ -52,6 +52,7 @@ const Profile = () => {
     setLoadingListings(true);
     try {
         const token = localStorage.getItem('accessToken');
+        console.log('Token being sent:', token);
       const response = await fetch(`${API_URL}/listings/owner/${user._id}`, { 
         method: "GET", 
         credentials: "include" ,
