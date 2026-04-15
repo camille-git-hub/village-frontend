@@ -13,7 +13,6 @@ export const ChatPopupWindow = () => {
     const [text, setText] = useState("");
     const [chat, setChat] = useState<Chat | null>(null);
     const socket = useSocket();
-    const bottomRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [isTyping, setIsTyping] = useState(false);
@@ -107,8 +106,8 @@ export const ChatPopupWindow = () => {
     }, [socket, chatId]);
 
     useEffect(() => {
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [chat?.messages]);
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [chat?.messages, isTyping]);
 
     const getOtherParticipant = () => {
         return chat?.participantIds.find((p) => p._id !== user?._id);
@@ -119,18 +118,18 @@ export const ChatPopupWindow = () => {
         const other = getOtherParticipant();
         if (!other) return;
 
-        socket.emit("typing:started", { chatId, senderName: user?.firstName || "Someone" });
+        socket.emit("typing:start", { chatId, senderName: user?.firstName || "Someone" });
 
         if (typingTimeout.current) {
             clearTimeout(typingTimeout.current);
         }
 
         typingTimeout.current = setTimeout(() => {
-            socket.emit("typing:stopped", { chatId, recipientId: other._id });
+            socket.emit("typing:stop", { chatId, recipientId: other._id });
         }, 2000);
     };
 
-    const handleSend = async(e?: React.KeyboardEvent<HTMLFormElement>) => {
+    const handleSend = async(e?: React.SubmitEvent<HTMLFormElement>) => {
         if (e) {
             e.preventDefault();
         }
@@ -245,11 +244,16 @@ export const ChatPopupWindow = () => {
           </div>
 
           {/* Input */}
-          <form onSubmit={handleSend} className="p-4 border-t flex gap-2">
+          <form onSubmit={(e) => { e.preventDefault(); handleSend(e); }} className="p-4 border-t flex gap-2">
             <input
               value={text}
               onChange={e => { setText(e.target.value); handleTyping(); }}
-              onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
               placeholder="Type a message…"
               className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-villageRed"
               disabled={sending}
