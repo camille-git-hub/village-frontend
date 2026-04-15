@@ -154,12 +154,15 @@ const Profile = () => {
             throw new Error('Please select a valid address from the suggestions.');
         }
 
+        const token = localStorage.getItem('accessToken');
+        console.log('Token being sent:', token);
+
       const response = await fetch(`${API_URL}/listings`, {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('accessToken') || ''}`,
+          'Authorization': `Bearer ${token || ''}`,
         },
         body: JSON.stringify({
           ...formData,
