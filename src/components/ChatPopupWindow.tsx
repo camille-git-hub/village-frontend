@@ -79,6 +79,24 @@ export const ChatPopupWindow = () => {
     }, [chatId, popup.isOpen, token]);
 
     useEffect(() => {
+    if (!socket || !chatId) return;
+    
+    const handleMessageReceive = ({ chatId: incomingChatId, message }: { chatId: string; message: ChatMessage }) => {
+        if (incomingChatId !== chatId) return;
+        setChat((prevChat) => (prevChat ? { ...prevChat, messages: [...prevChat.messages, message] } : prevChat));
+        
+        // ← ADD THIS: Emit update so Connect page list refreshes
+        socket.emit("chat:updated", { chatId });
+    };
+
+    socket.on("message:receive", handleMessageReceive);
+
+    return () => {
+        socket.off("message:receive", handleMessageReceive);
+    };
+}, [socket, chatId]);
+
+    useEffect(() => {
         if (!socket || !chatId) return;
         
         socket.on("message:receive", ({ chatId: incomingChatId, message }: { chatId: string; message: ChatMessage }) => {
@@ -160,8 +178,10 @@ export const ChatPopupWindow = () => {
 
             const newMessage = updatedChat.messages.at(-1);
             if (socket && newMessage) {
+                console.log("Emitting message:send", { chatId, recipientId: other._id });
+
                 socket.emit("message:send", { chatId, message: newMessage, recipientId: other._id });
-                socket.emit("chat:update", { chatId, message: newMessage });
+                socket.emit("chat:updated", { chatId });
             }
 
             setText("");
