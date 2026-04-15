@@ -4,6 +4,7 @@ import { useChatPopup } from "../context/ChatPopupContext.tsx";
 import type { Chat, ChatMessage } from "../types/chat.ts";
 import { X, Minus } from "lucide-react";
 import { useSocket } from "../context/SocketContext.tsx";
+import { fetchWithAuth } from "../utils/api.ts";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -26,7 +27,7 @@ export const ChatPopupWindow = () => {
         if (!chatId || !popup.isOpen) return;
 
         setLoading(true);
-        fetch(`${API_URL}/chats/${popup.chatId}`, { credentials: "include" })
+        fetchWithAuth(`${API_URL}/chats/${popup.chatId}`, { credentials: "include" })
             .then((r) => r.json())
             .then((data) => setChat(data.data))
             .catch(() => {
@@ -35,7 +36,7 @@ export const ChatPopupWindow = () => {
             })
             .finally(() => setLoading(false));
 
-        fetch(`${API_URL}/chats/${popup.chatId}/read`, { method: "PUT", credentials: "include" });
+        fetchWithAuth(`${API_URL}/chats/${popup.chatId}/read`, { method: "PUT", credentials: "include" });
     }, [chatId, popup.isOpen]);
 
     useEffect(() => {
@@ -97,7 +98,7 @@ export const ChatPopupWindow = () => {
         setSending(true);
 
         try {
-            const response = await fetch(`${API_URL}/chats/${chatId}/messages`, {
+            const response = await fetchWithAuth(`${API_URL}/chats/${chatId}/messages`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
