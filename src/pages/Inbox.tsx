@@ -39,18 +39,17 @@ const Inbox = () => {
         };
 
         fetchChats();
-    }, [token]);
+    }, [socket, token]);
 
     useEffect(() => {
         if (!socket) return;
 
-        socket.on("chat:updated", ({ chatId }: { chatId: string }) => {
-            // Refetch the specific chat or all chats
+            const handleChatUpdated = ({ chatId }: { chatId: string }) => {
             const fetchUpdatedChat = async () => {
                 try {
                     const response = await fetch(`${API_URL}/chats/${chatId}`, {
                         credentials: 'include',
-                        headers: { 'Authorization': `Bearer ${token || ''}` },
+                        headers: { 'Authorization': `Bearer ${token}` },
                     });
 
                     if (!response.ok) {
@@ -63,7 +62,7 @@ const Inbox = () => {
                     // Update the chat in the list
                     setChats((prevChats) =>
                         prevChats.map((chat) =>
-                            chat._id === chatId ? updatedChat : chat
+                            chat._id === chatId? updatedChat : chat
                         )
                     );
                 } catch (error) {
@@ -72,10 +71,14 @@ const Inbox = () => {
             };
 
             fetchUpdatedChat();
-        });
+        };
+
+        socket.on("chat:updated", handleChatUpdated);
+        socket.on("message:receive", ({chatId}) => handleChatUpdated({ chatId }));
 
         return () => {
             socket.off("chat:updated");
+            socket.off("message:receive");
         };
     }, [socket, token]);
 

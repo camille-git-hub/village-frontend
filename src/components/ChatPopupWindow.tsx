@@ -161,6 +161,7 @@ export const ChatPopupWindow = () => {
             const newMessage = updatedChat.messages.at(-1);
             if (socket && newMessage) {
                 socket.emit("message:send", { chatId, message: newMessage, recipientId: other._id });
+                socket.emit("chat:update", { chatId, message: newMessage });
             }
 
             setText("");
