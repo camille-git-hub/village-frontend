@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext.tsx";
 import type { Chat } from "../types/chat.ts";
 import { useChatPopup } from "../context/ChatPopupContext.tsx";
+import { useSocket } from "../context/SocketContext.tsx";
 
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -12,17 +13,71 @@ const Inbox = () => {
     const { openChat } = useChatPopup();
     const [loading, setLoading] = useState(true);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const socket = useSocket();
+
+      useEffect(() => {
+        const fetchChats = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch(`${API_URL}/chats`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: { 'Authorization': `Bearer ${token || ''}` },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch chats');
+                }
+
+                const data = await response.json();
+                setChats(data.data || []);
+            } catch (error) {
+                console.error('Error fetching chats:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchChats();
+    }, [token]);
 
     useEffect(() => {
-    fetch(`${API_URL}/chats`, { 
-        method: 'GET',
-        credentials: 'include',
-        headers: { 'Authorization': `Bearer ${token || ''}` },
-     })
-      .then(r => r.json())
-      .then(data => setChats(data.data || []))
-      .finally(() => setLoading(false));
-  }, []);
+        if (!socket) return;
+
+        socket.on("chat:updated", ({ chatId }: { chatId: string }) => {
+            // Refetch the specific chat or all chats
+            const fetchUpdatedChat = async () => {
+                try {
+                    const response = await fetch(`${API_URL}/chats/${chatId}`, {
+                        credentials: 'include',
+                        headers: { 'Authorization': `Bearer ${token || ''}` },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch updated chat');
+                    }
+
+                    const data = await response.json();
+                    const updatedChat = data.data;
+
+                    // Update the chat in the list
+                    setChats((prevChats) =>
+                        prevChats.map((chat) =>
+                            chat._id === chatId ? updatedChat : chat
+                        )
+                    );
+                } catch (error) {
+                    console.error('Error fetching updated chat:', error);
+                }
+            };
+
+            fetchUpdatedChat();
+        });
+
+        return () => {
+            socket.off("chat:updated");
+        };
+    }, [socket, token]);
 
     const getOtherParticipant = (chat: Chat) => {
         return chat.participantIds.find((p) => p._id !== user?._id);
