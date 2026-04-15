@@ -86,13 +86,13 @@ export const ChatPopupWindow = () => {
             setChat((prevChat) => (prevChat ? { ...prevChat, messages: [...prevChat.messages, message] } : prevChat));
         });
 
-        socket.on("typing:started", ({ chatId: typingChatId, senderName }: { chatId: string; senderName: string }) => {
+        socket.on("typing:start", ({ chatId: typingChatId, senderName }: { chatId: string; senderName: string }) => {
             if (typingChatId !== chatId) return;
             setIsTyping(true);
             setTypingName(senderName);
         });
         
-        socket.on("typing:stopped", ({ chatId: stopTypingChatId }: { chatId: string }) => {
+        socket.on("typing:stop", ({ chatId: stopTypingChatId }: { chatId: string }) => {
             if (stopTypingChatId !== chatId) return;
             setIsTyping(false);
             setTypingName("");
@@ -100,8 +100,8 @@ export const ChatPopupWindow = () => {
 
         return () => {
             socket.off("message:receive");
-            socket.off("typing:started");
-            socket.off("typing:stopped");
+            socket.off("typing:start");
+            socket.off("typing:stop");
         };
     }, [socket, chatId]);
 
