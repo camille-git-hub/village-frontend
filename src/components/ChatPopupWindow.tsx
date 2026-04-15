@@ -118,7 +118,7 @@ export const ChatPopupWindow = () => {
         const other = getOtherParticipant();
         if (!other) return;
 
-        socket.emit("typing:start", { chatId, senderName: user?.firstName || "Someone" });
+        socket.emit("typing:start", { chatId, senderName: user?.firstName || "Someone", recipientId: other._id });
 
         if (typingTimeout.current) {
             clearTimeout(typingTimeout.current);
