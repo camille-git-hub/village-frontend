@@ -9,7 +9,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export const ChatPopupWindow = () => {
     const { popup, closeChat, toggleMinimize } = useChatPopup();
-    const { user } = useAuth();
+    const { user, token } = useAuth();
     const [text, setText] = useState("");
     const [chat, setChat] = useState<Chat | null>(null);
     const socket = useSocket();
@@ -25,18 +25,58 @@ export const ChatPopupWindow = () => {
     useEffect(() => {
         if (!chatId || !popup.isOpen) return;
 
-        setLoading(true);
-        fetch(`${API_URL}/chats/${popup.chatId}`, { credentials: "include" })
-            .then((r) => r.json())
-            .then((data) => setChat(data.data))
-            .catch(() => {
-                console.error("Failed to load chat. Please try again.");
-                closeChat();
-            })
-            .finally(() => setLoading(false));
+        const fetchChat = async () => {
+          try {
+          setLoading(true);
+          const response = await fetch(`${API_URL}/chats/${chatId}`, { 
+            credentials: "include",
+            headers: { Authorization: `Bearer ${localStorage.getItem('accessToken') || ''}` 
+        }
+        });
 
-        fetch(`${API_URL}/chats/${popup.chatId}/read`, { method: "PUT", credentials: "include" });
-    }, [chatId, popup.isOpen]);
+          if (!response.ok) {
+            throw new Error('Failed to fetch chat');
+          }
+
+          const data = await response.json();
+          setChat(data.data);
+
+        } catch (error) {
+          console.error('Error fetching chat:', error);
+          closeChat();
+        } finally {
+          setLoading(false);
+        }
+      };
+
+        fetchChat();
+
+        return () => {
+            setChat(null);
+            setText("");
+        };
+    }, [chatId, popup.isOpen, token, closeChat]);
+
+    useEffect(() => {
+        if (!popup.isOpen || !chatId || !token) return;
+
+        const markasRead = async () => {
+          try { 
+            const response = await fetch(`${API_URL}/chats/${chatId}/read`, { 
+              method: "PUT", 
+              credentials: "include", 
+              headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (!response.ok) {
+              throw new Error('Failed to mark messages as read');
+            }
+          } catch (error) {
+            console.error('Error marking messages as read:', error);
+          }
+        };
+        markasRead();
+    }, [chatId, popup.isOpen, token]);
 
     useEffect(() => {
         if (!socket || !chatId) return;
@@ -101,6 +141,7 @@ export const ChatPopupWindow = () => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({ content: text.trim() }),
                 credentials: "include",
