@@ -7,7 +7,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const SocketContext = createContext<Socket | null>(null);
 
 export const SocketProvider =({ children }: { children: React.ReactNode }) => {
-    const { isLoggedin, user } = useAuth();
+    const { isLoggedin, user, token } = useAuth();
     const [socket, setSocket] = useState<Socket | null>(null);
 
     useEffect(() => {
@@ -16,6 +16,7 @@ export const SocketProvider =({ children }: { children: React.ReactNode }) => {
 
         const newSocket = io(API_URL, {
             withCredentials: true,
+            auth: { token: token },
         });
 
         newSocket.on("connect", () => {
