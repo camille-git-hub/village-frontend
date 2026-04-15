@@ -1,7 +1,6 @@
 import { useState, createContext, type ReactNode, useCallback, useContext, useEffect } from "react";
 import type { AuthContextType, LoginFormData, SignUpFormData, User } from "../types/auth.ts";
 import { useNavigate} from "react-router";
-//import { Link } from "react-router";
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -12,6 +11,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoggedin, setIsLoggedin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [token, setToken] = useState<string | null>(localStorage.getItem("accessToken"));
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -20,6 +20,9 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         const response = await fetch(`${AUTH_URL}/auth/me`, {
           method: "GET",
           credentials: "include",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
         if (response.ok) {
           const userData = await response.json();
@@ -45,7 +48,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     checkAuth();
-  }, []);
+  }, [token]);
 
   const handleLogin = useCallback(async (data: LoginFormData) => {
     try {
@@ -62,9 +65,19 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error(errorData.message || "Login failed");
       }
 
+      const loginData = await response.json();
+      const accessToken = loginData.accessToken || loginData.token;
+      localStorage.setItem("accessToken", accessToken);
+      setToken(accessToken);
+
+      console.log('Login successful, fetching user profile...');
+
       const profileResponse = await fetch(`${AUTH_URL}/auth/me`, {
         method: "GET",
         credentials: "include",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       });
 
       if (profileResponse.ok) {
@@ -105,10 +118,18 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error(errorData.message || "Registration failed");
       }
 
+      const registerData = await response.json();
+      const accessToken = registerData.accessToken || registerData.token;
+      localStorage.setItem("accessToken", accessToken);
+      setToken(accessToken);
+
       console.log('Registration successful, logging in...');
       const profileResponse = await fetch(`${AUTH_URL}/auth/me`, {
         method: "GET",
         credentials: "include",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       });
 
       if (profileResponse.ok) {
@@ -139,17 +160,22 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       await fetch(`${AUTH_URL}/auth/logout`, {
         method: "DELETE",
         credentials: "include",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       console.log('Logout successful');
+      localStorage.removeItem("accessToken");
       } catch (error) {
       console.log(error);
       } finally {
       navigate("/login");
       setIsLoggedin(false);
       setUser(null);
+      setToken(null);
       setIsLoading(false);
       }
-  }, []);
+  }, [token]);
 
   const handleDeleteAccount = useCallback(async () => {
     setIsLoading(true);
@@ -157,18 +183,23 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await fetch(`${AUTH_URL}/auth/delete`, {
         method: "DELETE",
         credentials: "include",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Account deletion failed");
       }
       console.log('Account deleted successfully');
+      localStorage.removeItem("accessToken");
     } catch (error) {
       console.log(error);
     } finally {
       navigate("/login");
       setIsLoggedin(false);
       setUser(null);
+      setToken(null);
       setIsLoading(false);
     }
   }, []);
@@ -182,7 +213,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         handleLogout,
         isLoggedin,
         isLoading,
-        handleDeleteAccount
+        handleDeleteAccount,
+        token
       }}
     >
       {children}
