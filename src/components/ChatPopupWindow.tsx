@@ -30,7 +30,7 @@ export const ChatPopupWindow = () => {
           setLoading(true);
           const response = await fetch(`${API_URL}/chats/${chatId}`, { 
             credentials: "include",
-            headers: { Authorization: `Bearer ${localStorage.getItem('accessToken') || ''}` 
+            headers: { Authorization: `Bearer ${token || ''}` 
         }
         });
 
@@ -84,8 +84,6 @@ export const ChatPopupWindow = () => {
         socket.on("message:receive", ({ chatId: incomingChatId, message }: { chatId: string; message: ChatMessage }) => {
             if (incomingChatId !== chatId) return;
             setChat((prevChat) => (prevChat ? { ...prevChat, messages: [...prevChat.messages, message] } : prevChat));
-
-            socket.emit("chat:updated", { chatId: incomingChatId, message });
         });
 
         socket.on("typing:started", ({ chatId: typingChatId, senderName }: { chatId: string; senderName: string }) => {
@@ -158,6 +156,8 @@ export const ChatPopupWindow = () => {
             }
 
             setText("");
+        } catch (error) {
+            console.error("Error sending message:", error);
         } finally {
             setSending(false);
         }
