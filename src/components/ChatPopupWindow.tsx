@@ -231,7 +231,7 @@ export const ChatPopupWindow = () => {
       {/* Messages - Hidden when minimized */}
       {!popup.isMinimized && (
         <>
-          <div className="flex-1 overflow-y-auto p-4 space-y-2 min-h-96 max-h-96">
+          <div key="messages-container" className="flex-1 overflow-y-auto p-4 space-y-2 min-h-96 max-h-96">
             {loading ? (
               <p className="text-center text-gray-500">Loading...</p>
             ) : (
@@ -265,7 +265,7 @@ export const ChatPopupWindow = () => {
           </div>
 
           {/* Input */}
-          <form onSubmit={(e) => { e.preventDefault()}} className="p-4 border-t flex gap-2">
+          <form key="input-form" onSubmit={(e) => { e.preventDefault()}} className="p-4 border-t flex gap-2">
             <input
               value={text}
               onChange={e => { setText(e.target.value); handleTyping(); }}
