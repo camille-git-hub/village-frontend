@@ -12,9 +12,14 @@ const Inbox = () => {
     const { openChat } = useChatPopup();
     const [loading, setLoading] = useState(true);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const token = localStorage.getItem('accessToken');
 
     useEffect(() => {
-    fetch(`${API_URL}/chats`, { credentials: 'include' })
+    fetch(`${API_URL}/chats`, { 
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'Authorization': `Bearer ${token || ''}` },
+     })
       .then(r => r.json())
       .then(data => setChats(data.data || []))
       .finally(() => setLoading(false));
@@ -35,9 +40,13 @@ const Inbox = () => {
         }
         setDeletingId(chatId);
         try {
+            const token = localStorage.getItem('accessToken');
             const response = await fetch(`${API_URL}/chats/${chatId}`, {
                 method: 'DELETE',
                 credentials: 'include',
+                headers: {
+                    'Authorization': `Bearer ${token || ''}`,
+                },
             });
             if (!response.ok) {
                 throw new Error('Failed to delete chat');

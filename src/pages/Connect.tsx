@@ -31,7 +31,14 @@ const Connect = () => {
   const fetchChats = async () => {
     setLoadingChats(true);
     try {
-      const response = await fetch(`${API_URL}/chats`, { credentials: 'include' });
+        const token = localStorage.getItem('accessToken');
+      const response = await fetch(`${API_URL}/chats`, { 
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token || ''}`,
+        },
+     });
       const data = await response.json();
       setChats(data.data || []);
     } catch (error) {
@@ -45,7 +52,14 @@ const Connect = () => {
   const fetchConnections = async () => {
     setLoadingConnections(true);
     try {
-      const response = await fetch(`${API_URL}/chats`, { credentials: 'include' });
+        const token = localStorage.getItem('accessToken');
+      const response = await fetch(`${API_URL}/chats`, { 
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token || ''}`,
+        },
+      });
       const data = await response.json();
       const chats = data.data || [];
 
@@ -72,7 +86,14 @@ const Connect = () => {
     setLoadingSaved(true);
     try {
       // This endpoint might not exist yet - adjust as needed
-      const response = await fetch(`${API_URL}/listings/saved`, { credentials: 'include' });
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`${API_URL}/listings/saved`, { 
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token || ''}`,
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setSavedListings(data.data || []);
@@ -106,9 +127,13 @@ const Connect = () => {
     }
     setDeletingId(chatId);
     try {
+        const token = localStorage.getItem('accessToken');
       const response = await fetch(`${API_URL}/chats/${chatId}`, {
         method: 'DELETE',
         credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token || ''}`,
+        },
       });
       if (!response.ok) throw new Error('Failed to delete');
       setChats(prev => prev.filter(chat => chat._id !== chatId));

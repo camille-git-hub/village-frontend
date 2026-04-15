@@ -7,7 +7,6 @@ import { Settings, Plus, Home } from "lucide-react";
 import { NEIGHBORHOODS } from "../utils/neightborhoods.ts";
 import { HAMBURG_SERVICES } from "../utils/listing_services.ts";
 import { OpenStreetMapProvider } from "leaflet-geosearch";
-//import { fetchWithAuth } from "../utils/api.ts";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -52,7 +51,14 @@ const Profile = () => {
     if (!user?._id) return;
     setLoadingListings(true);
     try {
-      const response = await fetch(`${API_URL}/listings/owner/${user._id}`);
+        const token = localStorage.getItem('accessToken');
+      const response = await fetch(`${API_URL}/listings/owner/${user._id}`, { 
+        method: "GET", 
+        credentials: "include" ,
+        headers: {
+          'Authorization': `Bearer ${token || ''}`,
+        },
+    });
       if (!response.ok) throw new Error("Failed to fetch listings");
       const data = await response.json();
       setListings(data.data || data);
@@ -68,9 +74,13 @@ const Profile = () => {
     if (!confirm("Are you sure you want to delete this listing?")) return;
     setDeletingId(listingId);
     try {
+        const token = localStorage.getItem('accessToken');
       const response = await fetch(`${API_URL}/listings/${listingId}`, {
         method: "DELETE",
-        credentials: "include"
+        credentials: "include",
+        headers: {
+          'Authorization': `Bearer ${token || ''}`,
+        },
       });
       if (!response.ok) throw new Error("Failed to delete listing");
       setListings(listings.filter((l) => l._id !== listingId));
@@ -146,6 +156,11 @@ const Profile = () => {
 
       const response = await fetch(`${API_URL}/listings`, {
         method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('accessToken') || ''}`,
+        },
         body: JSON.stringify({
           ...formData,
           lat: formData.lat || 53.5511, // Hamburg default
