@@ -59,7 +59,6 @@ export const ListingCard = ({ listing, onClick, onSave, onDelete, onEdit, showAc
           onSave?.(listing._id);
         }}
         className={`btn border p-4 mt-4 ml-2 cursor-pointer ${
-      // You'll need to pass a prop to know if it's saved
         isSaved 
         ? 'bg-villageRed text-white border-villageRed' 
         : 'border-villageRed text-villageRed hover:bg-villageRed hover:text-white'
