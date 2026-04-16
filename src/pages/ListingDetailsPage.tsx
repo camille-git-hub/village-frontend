@@ -20,13 +20,22 @@ const ListingDetailsPage = () => {
     const handleSaveListing = async (listingId: string) => {
         try {
             const token = localStorage.getItem('accessToken');
+            const isSaved = savedListings.includes(listingId);
+            const method = isSaved ? 'DELETE' : 'POST';
+    
             const response = await fetch(`${API_URL}/listings/${listingId}/save`, {
-                method: 'POST',
+                method: method,
                 credentials: 'include',
                 headers: { 'Authorization': `Bearer ${token}` },
-        });
+            });
+
             if (!response.ok) throw new Error('Failed to save listing');
+    
+            if (isSaved) {
+            setSavedListings(savedListings.filter(id => id !== listingId));
+            } else {
             setSavedListings([...savedListings, listingId]);
+            }
         } catch (error) {
             console.error('Error saving listing:', error);
         }

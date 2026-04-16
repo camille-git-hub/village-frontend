@@ -30,6 +30,7 @@ export type User = {
   firstName: string;
   lastName: string;
   roles: string[];
+  savedListings: string[];
 };
 
 export type AuthContextType = {

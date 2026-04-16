@@ -33,6 +33,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
             firstName: userData.firstName,
             lastName: userData.lastName,
             roles: userData.roles || ['user'],
+            savedListings: userData.savedListings || [],
           });
           setIsLoggedin(true);
         } else {
@@ -88,6 +89,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
           firstName: userData.firstName,
           lastName: userData.lastName,
           roles: userData.roles || ['user'],
+          savedListings: userData.savedListings || [],
         }
         );
         setIsLoggedin(true);
@@ -141,6 +143,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
           firstName: userData.firstName,
           lastName: userData.lastName,
           roles: userData.roles || ['user'],
+          savedListings: userData.savedListings || [],
         });
       }
       setIsLoggedin(true);

@@ -9,9 +9,10 @@ type Props = {
   detailsButton?: boolean;
   savedButton?: boolean;
   onSave?: () => void;
+  isSaved?: boolean; 
 };
 
-export const ListingCard = ({ listing, onClick, onSave, onDelete, onEdit, showActions, detailsButton, savedButton }: Props) => (
+export const ListingCard = ({ listing, onClick, onSave, onDelete, onEdit, showActions, detailsButton, savedButton, isSaved }: Props) => (
   <div
     className="w-full border rounded-lg p-4 shadow-sm mb-4"
   >
@@ -52,10 +53,22 @@ export const ListingCard = ({ listing, onClick, onSave, onDelete, onEdit, showAc
         <button onClick={onClick} className="btn p-4 mt-4 cursor-pointer">Show details</button>
     )}
     {savedButton && (
-        <button onClick={onSave} className="btn border border-villageRed text-villageRed hover:bg-villageRed hover:text-white p-4 mt-4 ml-2 cursor-pointer">
-          Save for later
-        </button>
-    )}
+      <button 
+        onClick={() => {
+          console.log('Save button clicked!');
+          console.log('onSave function:', onSave);
+          onSave?.();
+        }}
+        className={`btn border p-4 mt-4 ml-2 cursor-pointer ${
+      // You'll need to pass a prop to know if it's saved
+        isSaved 
+        ? 'bg-villageRed text-white border-villageRed' 
+        : 'border-villageRed text-villageRed hover:bg-villageRed hover:text-white'
+      }`}
+      >
+      {isSaved ? 'Saved' : 'Save for later'}
+      </button>
+      )}
 
 
   </div>

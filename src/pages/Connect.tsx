@@ -6,6 +6,7 @@ import type { Listing } from "../types/listing.ts";
 import { MessageCircle, Users, Heart } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const AUTH_URL = import.meta.env.VITE_AUTH_URL || "http://localhost:4000";
 
 type TabType = "inbox" | "connections" | "saved";
 
@@ -83,26 +84,23 @@ const Connect = () => {
 
   // FETCH SAVED LISTINGS (placeholder - adjust based on your backend)
   const fetchSavedListings = async () => {
+    if (!user?._id) return;
     setLoadingSaved(true);
     try {
-      // This endpoint might not exist yet - adjust as needed
-      const token = localStorage.getItem('accessToken');
-      const response = await fetch(`${API_URL}/users/${user?._id}/saved-listings`, { 
-        method: 'GET',
-        credentials: 'include',
+        const token = localStorage.getItem('accessToken');
+        console.log('Token being sent:', token);
+      const response = await fetch(`${AUTH_URL}/users/${user._id}/saved`, { 
+        method: "GET", 
+        credentials: "include" ,
         headers: {
           'Authorization': `Bearer ${token || ''}`,
         },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setSavedListings(data.data || []);
-      } else {
-        setSavedListings([]);
-      }
+    });
+      if (!response.ok) throw new Error("Failed to fetch saved listings");
+      const data = await response.json();
+      setSavedListings(data.data || data);
     } catch (error) {
-      console.error('Error fetching saved listings:', error);
-      setSavedListings([]);
+      console.error("Error fetching saved listings:", error);
     } finally {
       setLoadingSaved(false);
     }
