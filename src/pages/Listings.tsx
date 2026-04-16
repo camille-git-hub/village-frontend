@@ -6,7 +6,7 @@ import { ListingCard } from "../components/ListingCard.tsx";
 export const ListingsPage = () => {
     const [listings, setListings] = useState<Listing[]>([]);
     const [loading, setLoading] = useState(true);
-    const [savedListings, setSavedListings] = useState<Listing[]>([]);
+    const [savedListings, setSavedListings] = useState<string[]>([]);
     const [filters, setFilters] = useState({
         category: "",
         neighborhood: "",
@@ -17,6 +17,7 @@ export const ListingsPage = () => {
     
     const navigate = useNavigate();
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    const AUTH_URL = import.meta.env.VITE_AUTH_URL || "http://localhost:4000";
 
     const fetchListings = async () => {
         setLoading(true);
@@ -43,14 +44,41 @@ export const ListingsPage = () => {
         }
     };
 
+    const fetchSavedListings = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user._id) return;
+
+            const response = await fetch(`${AUTH_URL}/users/${user._id}/saved`, {
+                method: 'GET',
+                credentials: "include",
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch saved listings');
+            }
+
+            const data = await response.json();
+            
+            const savedListingIds = Array.isArray(data.data) 
+                ? data.data : [];
+            setSavedListings(savedListingIds);
+        } catch (error) {
+            console.error("Error fetching saved listings:", error);
+        }
+    };  
+
     useEffect(() => {
         fetchListings();
+        fetchSavedListings();
     }, []);
 
-    const handleSaveListing = async (listingId: string) => {
+    const handleSaveListing = async (listingId: any) => {
     try {
         const token = localStorage.getItem('accessToken');
-        const isSaved = savedListings.some(listing => listing._id === listingId);
+        const isSaved = savedListings.includes(listingId);
         const method = isSaved ? 'DELETE' : 'POST';
         
         const response = await fetch(`${API_URL}/listings/${listingId}/save`, {
@@ -62,15 +90,14 @@ export const ListingsPage = () => {
         if (!response.ok) throw new Error('Failed to save listing');
 
         if (isSaved) {
-            setSavedListings(savedListings.filter(listing => listing._id !== listingId));
+            setSavedListings(prevSavedListings => prevSavedListings.filter(id => id !== listingId));
         } else {
-            const listingToSave = listings.find(l => l._id === listingId);
-            if (listingToSave) {
-                setSavedListings([...savedListings, listingToSave]);
+            console.log('Listing saved successfully, updating state');
+            setSavedListings(prevSavedListings => [...prevSavedListings, listingId]);
             }
-        }
 
-        console.log ('Listing saved successfully');
+        await fetchSavedListings();
+
     } catch (error) {
         console.error('Error saving listing:', error);
     }
@@ -109,7 +136,7 @@ export const ListingsPage = () => {
                     <p>Loading listings...</p>
                 ) : listings.length > 0 ? (
                     listings.map((listing: Listing) => (
-                        <ListingCard key={listing._id} listing={listing} detailsButton={true} savedButton={true} onClick={() => navigate(`/listings/${listing._id}`)} onSave={() => handleSaveListing(listing._id)} isSaved={savedListings.some(saved => saved._id === listing._id)} />
+                        <ListingCard key={listing._id} listing={listing} detailsButton={true} savedButton={true} onClick={() => navigate(`/listings/${listing._id}`)} onSave={() => handleSaveListing(listing._id)} isSaved={savedListings.includes(listing._id)} />
                     ))
                 ) : (
                     <p>No listings found.</p>

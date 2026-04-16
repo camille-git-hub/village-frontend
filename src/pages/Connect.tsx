@@ -4,6 +4,7 @@ import { useChatPopup } from "../context/ChatPopupContext.tsx";
 import type { Chat, ChatParticipant } from "../types/chat.ts";
 import type { Listing } from "../types/listing.ts";
 import { MessageCircle, Users, Heart } from "lucide-react";
+import { ListingCard } from "../components/ListingCard.tsx";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const AUTH_URL = import.meta.env.VITE_AUTH_URL || "http://localhost:4000";
@@ -88,19 +89,40 @@ const Connect = () => {
     setLoadingSaved(true);
     try {
         const token = localStorage.getItem('accessToken');
-        console.log('Token being sent:', token);
-      const response = await fetch(`${AUTH_URL}/users/${user._id}/saved`, { 
+        
+      const idsResponse = await fetch(`${AUTH_URL}/users/${user._id}/saved`, { 
         method: "GET", 
         credentials: "include" ,
         headers: {
           'Authorization': `Bearer ${token || ''}`,
         },
     });
-      if (!response.ok) throw new Error("Failed to fetch saved listings");
-      const data = await response.json();
-      setSavedListings(data.data || data);
+      if (!idsResponse.ok) throw new Error("Failed to fetch saved listings");
+      const idsData = await idsResponse.json();
+      const listingIds = idsData.data || [];
+
+      console.log('Fetched saved listing IDs:', listingIds);
+
+      if (listingIds.length > 0) {
+        const listingsResponse = await fetch(`${API_URL}/listings`, {
+          method: "GET",
+          headers: { 'Authorization': `Bearer ${token || ''}` },
+        });
+        if (!listingsResponse.ok) throw new Error("Failed to fetch listings");
+        const listingsData = await listingsResponse.json();
+        const allListings = listingsData.data || [];
+
+        const savedListings = allListings.filter((listing: any) => listingIds.includes(listing._id)
+    );
+        setSavedListings(savedListings);
+        
+      }else {
+        setSavedListings([]);
+        }
+      
     } catch (error) {
       console.error("Error fetching saved listings:", error);
+      setSavedListings([]);
     } finally {
       setLoadingSaved(false);
     }
@@ -336,25 +358,18 @@ const Connect = () => {
           {/* SAVED LISTINGS TAB */}
           {activeTab === "saved" && (
             <div>
-              <h2 className="text-2xl font-bold mb-6">Saved Listings</h2>
-              {loadingSaved ? (
-                <p>Loading...</p>
-              ) : savedListings.length === 0 ? (
-                <p className="text-gray-500">No saved listings yet. Start saving listings you like!</p>
-              ) : (
-                <div className="grid grid-cols-2 gap-4">
-                  {savedListings.map((listing) => (
-                    <div
-                      key={listing._id}
-                      className="p-4 bg-white border rounded-lg hover:shadow-md transition"
-                    >
-                      <h3 className="font-semibold mb-2">{listing.title}</h3>
-                      <p className="text-sm text-gray-600 mb-3">{listing.description?.slice(0, 100)}</p>
-                      <p className="text-sm font-medium text-villageRed">{listing.category}</p>
+                <h2 className="text-2xl font-bold mb-6">Saved Listings</h2>
+                {loadingSaved ? (
+                    <p>Loading...</p>
+                ) : savedListings.length === 0 ? (
+                    <p className="text-gray-500">No saved listings yet.</p>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {savedListings.map((listing) => (
+                            <ListingCard key={listing._id} listing={listing} detailsButton={true} savedButton={false} onClick={() => window.location.href = `/listings/${listing._id}`} />
+                        ))}
                     </div>
-                  ))}
-                </div>
-              )}
+                )}
             </div>
           )}
         </div>

@@ -1,5 +1,5 @@
 import { useParams } from 'react-router';
-import { useEffect, useState} from 'react';
+import { use, useEffect, useState} from 'react';
 import type { Listing } from '../types/listing.ts';
 import { ListingCard } from '../components/ListingCard.tsx';
 import { useAuth } from '../context/AuthContext.tsx';
@@ -17,30 +17,31 @@ const ListingDetailsPage = () => {
 
     const [savedListings, setSavedListings] = useState<string[]>([]);
 
-    const handleSaveListing = async (listingId: string) => {
-        try {
-            const token = localStorage.getItem('accessToken');
-            const isSaved = savedListings.includes(listingId);
-            const method = isSaved ? 'DELETE' : 'POST';
-    
-            const response = await fetch(`${API_URL}/listings/${listingId}/save`, {
-                method: method,
-                credentials: 'include',
-                headers: { 'Authorization': `Bearer ${token}` },
-            });
+    const handleSaveListing = async (listingId: any) => {
+    try {
+        const token = localStorage.getItem('accessToken');
+        const isSaved = savedListings.includes(listingId);
+        const method = isSaved ? 'DELETE' : 'POST';
+        
+        const response = await fetch(`${API_URL}/listings/${listingId}/save`, {
+            method: method,
+            credentials: 'include',
+            headers: { 'Authorization': `Bearer ${token}` },
+        });
 
-            if (!response.ok) throw new Error('Failed to save listing');
-    
-            if (isSaved) {
-            setSavedListings(savedListings.filter(id => id !== listingId));
-            } else {
+        if (!response.ok) throw new Error('Failed to save listing');
+
+        if (isSaved) {
+            setSavedListings(savedListings.filter(listing => listing !== listingId));
+        } else {
             setSavedListings([...savedListings, listingId]);
             }
-        } catch (error) {
-            console.error('Error saving listing:', error);
-        }
-    };
+        console.log ('Listing saved successfully');
+    } catch (error) {
+        console.error('Error saving listing:', error);
+    }};
 
+   
     const handleContact = async () => {
         if (!listing) return;
         if (listing.ownerId === user?._id) {
@@ -102,7 +103,7 @@ const ListingDetailsPage = () => {
             Back
         </button>
       <h1 className="text-villageRed text-2xl font-bold mb-4 mt-10">Listing Details</h1>
-        <ListingCard listing={listing} savedButton={true} onSave={() => handleSaveListing(listing._id)} />
+        <ListingCard key={listing._id} listing={listing} detailsButton={false} savedButton={true} onSave={() => handleSaveListing(listing._id)} isSaved={savedListings.includes(listing._id)} />
         {listing && listing.ownerId !== user?._id && (
         <button
         onClick={handleContact}
