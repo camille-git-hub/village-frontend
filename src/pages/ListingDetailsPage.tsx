@@ -1,5 +1,5 @@
 import { useParams } from 'react-router';
-import { use, useEffect, useState} from 'react';
+import { useEffect, useState} from 'react';
 import type { Listing } from '../types/listing.ts';
 import { ListingCard } from '../components/ListingCard.tsx';
 import { useAuth } from '../context/AuthContext.tsx';

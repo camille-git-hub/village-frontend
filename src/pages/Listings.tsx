@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import type { Listing } from "../types/listing.ts";
 import { ListingCard } from "../components/ListingCard.tsx";
+import { useAuth } from "../context/AuthContext.tsx";
 
 export const ListingsPage = () => {
     const [listings, setListings] = useState<Listing[]>([]);
@@ -18,6 +19,7 @@ export const ListingsPage = () => {
     const navigate = useNavigate();
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
     const AUTH_URL = import.meta.env.VITE_AUTH_URL || "http://localhost:4000";
+    const user = useAuth().user;
 
     const fetchListings = async () => {
         setLoading(true);
@@ -45,41 +47,40 @@ export const ListingsPage = () => {
     };
 
     const fetchSavedListings = async () => {
-        try {
-            const token = localStorage.getItem('accessToken');
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            if (!user._id) return;
+        if (!user?._id) return;
+    try {
+        const token = localStorage.getItem('accessToken');
+        
+        const idsResponse = await fetch(`${AUTH_URL}/users/${user._id}/saved`, { 
+            method: "GET", 
+            credentials: "include",
+            headers: {
+                'Authorization': `Bearer ${token || ''}`,
+            },
+        });
+        
+        if (!idsResponse.ok) throw new Error("Failed to fetch saved listings");
+        
+        const idsData = await idsResponse.json();
+        const listingIds = idsData.data || [];
 
-            const response = await fetch(`${AUTH_URL}/users/${user._id}/saved`, {
-                method: 'GET',
-                credentials: "include",
-                headers: { 'Authorization': `Bearer ${token}` },
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch saved listings');
-            }
-
-            const data = await response.json();
-            
-            const savedListingIds = Array.isArray(data.data) 
-                ? data.data : [];
-            setSavedListings(savedListingIds);
-        } catch (error) {
-            console.error("Error fetching saved listings:", error);
-        }
-    };  
-
-    useEffect(() => {
-        fetchListings();
-        fetchSavedListings();
-    }, []);
+        console.log('Fetched saved listing IDs:', listingIds);
+        setSavedListings(listingIds);  // ← Just set the IDs directly
+        
+    } catch (error) {
+        console.error("Error fetching saved listings:", error);
+        setSavedListings([]);
+    }
+};
 
     const handleSaveListing = async (listingId: any) => {
     try {
         const token = localStorage.getItem('accessToken');
         const isSaved = savedListings.includes(listingId);
         const method = isSaved ? 'DELETE' : 'POST';
+
+        console.log(`${method === 'DELETE' ? 'Unsaving' : 'Saving'} listing ${listingId}`);
+
         
         const response = await fetch(`${API_URL}/listings/${listingId}/save`, {
             method: method,
@@ -96,12 +97,23 @@ export const ListingsPage = () => {
             setSavedListings(prevSavedListings => [...prevSavedListings, listingId]);
             }
 
-        await fetchSavedListings();
-
     } catch (error) {
         console.error('Error saving listing:', error);
     }
 };
+
+    useEffect(() => {
+        if (user?._id) {
+            fetchListings();
+            fetchSavedListings();
+        }
+    }, [filters]);
+
+    useEffect(() => {
+        console.log('Saved listings updated:', savedListings);
+        console.log('Current listings:', listings);
+    }, [savedListings, listings]);
+
   return (
     <div className="p-4 w-full lg:ml-40 lg:w-1/2 sm:w-full">
         <h1 className="text-2xl font-bold mb-4">Listings Feed</h1>
