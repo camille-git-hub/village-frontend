@@ -3,17 +3,20 @@ import { useNavigate } from "react-router";
 import type { Listing } from "../types/listing.ts";
 import { ListingCard } from "../components/ListingCard.tsx";
 import { useAuth } from "../context/AuthContext.tsx";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export const ListingsPage = () => {
     const [listings, setListings] = useState<Listing[]>([]);
     const [loading, setLoading] = useState(true);
     const [savedListings, setSavedListings] = useState<string[]>([]);
+    const [currentPage, setCurrentPage] = useState(1);
     const [filters, setFilters] = useState({
         category: "",
         neighborhood: "",
         q: "",
     });
 
+    const ITEMS_PER_PAGE = 5;
     const neighborhoods = Array.from(new Set(listings.map((listing) => listing.neighborhood)));
     
     const navigate = useNavigate();
@@ -21,8 +24,14 @@ export const ListingsPage = () => {
     const AUTH_URL = import.meta.env.VITE_AUTH_URL || "http://localhost:4000";
     const user = useAuth().user;
 
+    const totalPages = Math.ceil(listings.length / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const currentListings = listings.slice(startIndex, endIndex);
+
     const fetchListings = async () => {
         setLoading(true);
+        setCurrentPage(1); // Reset to first page on new search
         try {
             const queryParams = new URLSearchParams();
             if (filters.category) queryParams.append("category", filters.category);
@@ -144,26 +153,75 @@ export const ListingsPage = () => {
                 Search
             </button>
             <div className="mt-4">
-                {loading ? (
-                    <p>Loading listings...</p>
-                ) : listings.length > 0 ? (
-                    listings.map((listing: Listing) => (
-                        <ListingCard key={listing._id} listing={listing} detailsButton={true} savedButton={true} onClick={() => navigate(`/listings/${listing._id}`)} onSave={() => handleSaveListing(listing._id)} isSaved={savedListings.includes(listing._id)} />
-                    ))
-                ) : (
-                    <p>No listings found.</p>
+                    {loading ? (
+                        <p>Loading listings...</p>
+                    ) : currentListings.length > 0 ? (
+                        <>
+                            {currentListings.map((listing: Listing) => (
+                                <ListingCard 
+                                    key={listing._id} 
+                                    listing={listing} 
+                                    detailsButton={true} 
+                                    savedButton={true} 
+                                    onClick={() => navigate(`/listings/${listing._id}`)} 
+                                    onSave={() => handleSaveListing(listing._id)}
+                                    isSaved={savedListings.includes(listing._id)}
+                                />
+                            ))}
+
+                            {/* PAGINATION */}
+                            {totalPages > 1 && (
+                                <div className="flex items-center justify-center gap-4 mt-8">
+                                    <button
+                                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                        disabled={currentPage === 1}
+                                        className="p-2 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <ChevronLeft size={20} />
+                                    </button>
+
+                                    <div className="flex gap-2">
+                                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                            <button
+                                                key={page}
+                                                onClick={() => setCurrentPage(page)}
+                                                className={`px-4 py-2 rounded font-medium transition ${
+                                                    currentPage === page
+                                                        ? 'bg-villageRed text-white'
+                                                        : 'border border-gray-300 hover:bg-gray-100'
+                                                }`}
+                                            >
+                                                {page}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <button
+                                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                        disabled={currentPage === totalPages}
+                                        className="p-2 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <ChevronRight size={20} />
+                                    </button>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <p>No listings found.</p>
+                    )}
+                </div>
+
+                {listings.length >= 0 && (
+                    <button
+                        onClick={() => navigate("/profile", { state: { tab: "new" } })}
+                        className="bg-villageRed text-white px-4 py-2 rounded mt-2 hover:bg-villagePink hover:text-black"
+                    >
+                        Add New Listing
+                    </button>
                 )}
             </div>
-            {listings.length >= 0 && (
-                <button
-                    onClick={() => navigate("/profile?", { state: { tab: "new" } })}
-                    className="bg-villageRed text-white px-4 py-2 rounded mt-2 hover:bg-villagePink hover:text-black"
-                >
-                    Add New Listing
-                </button>
-            )}
         </div>
-    </div>
-  )};
+    );
+};
 
 export default ListingsPage;
