@@ -156,7 +156,7 @@ export const ListingsPage = () => {
             </div>
             {listings.length >= 0 && (
                 <button
-                    onClick={() => navigate("/listings/new")}
+                    onClick={() => navigate("/profile?", { state: { tab: "new" } })}
                     className="bg-villageRed text-white px-4 py-2 rounded mt-2 hover:bg-villagePink hover:text-black"
                 >
                     Add New Listing

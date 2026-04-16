@@ -1,6 +1,6 @@
 import { use, useState, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext.tsx";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { ListingCard } from "../components/ListingCard.tsx";
 import type { Listing } from "../types/listing.ts";
 import { Settings, Plus, Home } from "lucide-react";
@@ -14,7 +14,8 @@ type TabType = "listings" | "new" | "account";
 
 const Profile = () => {
   const context = use(AuthContext);
-  const [activeTab, setActiveTab] = useState<TabType>("listings");
+  const location= useLocation();
+  const [activeTab, setActiveTab] = useState<TabType>((location.state?.tab as TabType) || "listings");
   
   // My Listings state
   const [listings, setListings] = useState<Listing[]>([]);
