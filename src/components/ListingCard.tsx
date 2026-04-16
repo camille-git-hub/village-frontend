@@ -8,7 +8,7 @@ type Props = {
   showActions?: boolean;
   detailsButton?: boolean;
   savedButton?: boolean;
-  onSave?: () => void;
+  onSave?: (listingId: string) => void;
   isSaved?: boolean; 
 };
 
@@ -54,10 +54,9 @@ export const ListingCard = ({ listing, onClick, onSave, onDelete, onEdit, showAc
     )}
     {savedButton && (
       <button 
-        onClick={() => {
-          console.log('Save button clicked!');
-          console.log('onSave function:', onSave);
-          onSave?.();
+        onClick={(e) => {
+          e.stopPropagation();
+          onSave?.(listing._id);
         }}
         className={`btn border p-4 mt-4 ml-2 cursor-pointer ${
       // You'll need to pass a prop to know if it's saved
