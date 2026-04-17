@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext.tsx';
 import { useChatPopup } from '../context/ChatPopupContext.tsx';
 
 
+
 const ListingDetailsPage = () => {
     const user = useAuth().user;
     const { openChat } = useChatPopup();
@@ -14,6 +15,7 @@ const ListingDetailsPage = () => {
     const { _id } = useParams<{ _id: string }>();
     const [listing, setListing] = useState<Listing | null>(null);
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    const AUTH_URL = import.meta.env.VITE_AUTH_URL || "http://localhost:4000";
 
     const [savedListings, setSavedListings] = useState<string[]>([]);
 
@@ -41,6 +43,33 @@ const ListingDetailsPage = () => {
         console.error('Error saving listing:', error);
     }};
 
+    const fetchSavedListings = async () => {
+        if (!user?._id) return;
+    try {
+        const token = localStorage.getItem('accessToken');
+        
+        const idsResponse = await fetch(`${AUTH_URL}/users/${user._id}/saved`, { 
+            method: "GET", 
+            credentials: "include",
+            headers: {
+                'Authorization': `Bearer ${token || ''}`,
+            },
+        });
+        
+        if (!idsResponse.ok) throw new Error("Failed to fetch saved listings");
+        
+        const idsData = await idsResponse.json();
+        const listingIds = idsData.data || [];
+
+        console.log('Fetched saved listing IDs:', listingIds);
+        setSavedListings(listingIds);  // ← Just set the IDs directly
+        
+    } catch (error) {
+        console.error("Error fetching saved listings:", error);
+        setSavedListings([]);
+    }
+};
+
    
     const handleContact = async () => {
         if (!listing) return;
@@ -49,11 +78,16 @@ const ListingDetailsPage = () => {
         }
         
         try {
+            const token = localStorage.getItem('accessToken');
             const response = await fetch(`${API_URL}/chats`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token || ''}`
+                    },
                     credentials: 'include',
                     body: JSON.stringify({ participantId: listing.ownerId })
+
                 });
                 if (!response.ok) {
                     throw new Error('Failed to create or fetch chat');
@@ -85,6 +119,7 @@ const ListingDetailsPage = () => {
         }
 
         fetchListing();
+        fetchSavedListings();
     }, [_id]);
 
     if (!listing) {

@@ -16,6 +16,12 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        if(location.pathname === "/signup" || location.pathname === "/register") {
+          console.log('On signup page, skipping auth check');
+          setIsLoading(false);
+          return;
+         }
+         
         console.log('Checking authentication status...');
         const response = await fetch(`${AUTH_URL}/auth/me`, {
           method: "GET",
