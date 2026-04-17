@@ -1,4 +1,3 @@
-// src/utils/services.ts
 
 export const HAMBURG_SERVICES = [
   // Home & Property Services
