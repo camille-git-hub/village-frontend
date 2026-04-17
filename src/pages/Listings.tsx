@@ -18,6 +18,7 @@ export const ListingsPage = () => {
 
     const ITEMS_PER_PAGE = 5;
     const neighborhoods = Array.from(new Set(listings.map((listing) => listing.neighborhood)));
+    const categories = Array.from(new Set(listings.map((listing) => listing.category)));
     
     const navigate = useNavigate();
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -142,6 +143,16 @@ export const ListingsPage = () => {
                 <option value="">All Neighborhoods</option>
                 {neighborhoods.map((n) => (
                 <option key={n} value={n}>{n}</option>
+                ))}
+            </select>
+            <select
+                value={filters.category} 
+                onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                className="border p-2 rounded w-full mt-2"
+            >
+                <option value="">All Categories</option>
+                {categories.map((category) => (
+                    <option key={category} value={category}>{category}</option>
                 ))}
             </select>
 

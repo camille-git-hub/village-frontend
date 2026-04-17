@@ -340,7 +340,7 @@ const Connect = () => {
             <MessageCircle size={20} />
             <span className="font-medium">Inbox</span>
             {chats.length > 0 && (
-              <span className="ml-auto bg-villageRed text-white text-xs px-2 py-1 rounded-full">
+              <span className="ml-auto text-gray-500 text-xs px-2 py-1 rounded-full">
                 {chats.length}
               </span>
             )}
@@ -357,7 +357,7 @@ const Connect = () => {
             <Users size={20} />
             <span className="font-medium">Connections</span>
             {connections.length > 0 && (
-              <span className="ml-auto bg-villageRed text-white text-xs px-2 py-1 rounded-full">
+              <span className="ml-auto text-gray-500 text-xs px-2 py-1 rounded-full">
                 {connections.length}
               </span>
             )}
@@ -374,7 +374,7 @@ const Connect = () => {
             <UserPlus size={20} />
             <span className="font-medium">My Network</span>
             {(networkConnections.length + receivedRequests.length) > 0 && (
-              <span className="ml-auto bg-villageRed text-white text-xs px-2 py-1 rounded-full">
+              <span className="ml-auto text-gray-500 text-xs px-2 py-1 rounded-full">
                 {networkConnections.length + receivedRequests.length}
               </span>
             )}
@@ -391,7 +391,7 @@ const Connect = () => {
             <Heart size={20} />
             <span className="font-medium">Saved Listings</span>
             {savedListings.length > 0 && (
-              <span className="ml-auto bg-villageRed text-white text-xs px-2 py-1 rounded-full">
+              <span className="ml-auto text-gray-500 text-xs px-2 py-1 rounded-full">
                 {savedListings.length}
               </span>
             )}
@@ -468,7 +468,10 @@ const Connect = () => {
               ) : connections.length === 0 ? (
                 <p className="text-gray-500">No connections yet.</p>
               ) : (
-                <div className="sm:w-full md:w-full lg:w-2/3 grid grid-cols-2 gap-4">
+                <>
+            <span className="mb-4">Here's the list of people you've chatted with. Click on *Add to add them to your network.</span>
+
+                <div className="sm:w-full md:w-full lg:w-2/3 grid grid-cols-2 gap-4 mt-4">                   
                   {connections.map((connection) => {
                     const status = getConnectionStatus(connection._id);
                     
@@ -540,6 +543,7 @@ const Connect = () => {
                     );
                   })}
                 </div>
+                </>
               )}
             </div>
           )}
@@ -569,7 +573,8 @@ const Connect = () => {
               ) : (
                 <>
                   {/* Network Stats */}
-                  <div className="grid grid-cols-3 gap-4">
+                  <span className="font-semibold mb-2">Profile Stats:</span>
+                  <div className="grid grid-cols-3 gap-4 mt-2">
                     <div className="bg-white p-4 rounded-lg border border-gray-200">
                       <p className="text-sm text-gray-600">My Connections</p>
                       <p className="text-3xl font-bold text-villageRed">{networkConnections.length}</p>
@@ -653,7 +658,7 @@ const Connect = () => {
                   
                   {/* My Connections */}
                   <div>
-                    <h3 className="text-lg font-semibold mb-4">My Connections ({networkConnections.length})</h3>
+                    <h3 className="font-semibold mb-4">Currently in your network:  ({networkConnections.length})</h3>
                     {networkConnections.length === 0 ? (
                       <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
                         <Users size={48} className="mx-auto text-gray-300 mb-4" />

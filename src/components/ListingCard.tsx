@@ -16,7 +16,10 @@ export const ListingCard = ({ listing, onClick, onSave, onDelete, onEdit, showAc
   <div
     className="w-full border rounded-lg p-4 shadow-sm mb-4"
   >
+    <div className="flex items-center justify-between">
     <h2 className="text-xl font-bold mb-1">{listing.title}</h2>
+    <p className="text-sm text-gray-500 mr-2 italic">Posted on {new Date(listing.createdAt).toLocaleDateString()}</p>
+    </div>
     <span className="text-xs bg-villagePink text-villageRed px-2 py-1 rounded-full mb-2 inline-block">
       {listing.category}
     </span>

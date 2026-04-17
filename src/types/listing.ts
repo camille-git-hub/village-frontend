@@ -8,6 +8,7 @@ export type Listing = {
     lat: number;
     lng: number;
     ownerId: string;
+    createdAt: string;
 };
 
  
