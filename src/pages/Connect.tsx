@@ -3,16 +3,18 @@ import { useAuth } from "../context/AuthContext.tsx";
 import { useChatPopup } from "../context/ChatPopupContext.tsx";
 import type { Chat, ChatParticipant } from "../types/chat.ts";
 import type { Listing } from "../types/listing.ts";
-import { MessageCircle, Users, Heart } from "lucide-react";
+import { MessageCircle, Users, Heart, UserPlus, UserCheck, UserX, Loader } from "lucide-react";
 import { ListingCard } from "../components/ListingCard.tsx";
+import type { NetworkUser, ConnectionRequest } from "../types/network.ts";
+import * as networkService from "../services/networkService.ts";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const AUTH_URL = import.meta.env.VITE_AUTH_URL || "http://localhost:4000";
 
-type TabType = "inbox" | "connections" | "saved";
+type TabType = "inbox" | "connections" | "saved" | "network";
 
 const Connect = () => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const { openChat } = useChatPopup();
   const [activeTab, setActiveTab] = useState<TabType>("inbox");
   
@@ -28,6 +30,35 @@ const Connect = () => {
   // Saved Listings state
   const [savedListings, setSavedListings] = useState<Listing[]>([]);
   const [loadingSaved, setLoadingSaved] = useState(false);
+
+  // Network state
+  const [networkConnections, setNetworkConnections] = useState<NetworkUser[]>([]);
+  const [receivedRequests, setReceivedRequests] = useState<ConnectionRequest[]>([]);
+  const [sentRequests, setSentRequests] = useState<ConnectionRequest[]>([]);
+  const [loadingNetwork, setLoadingNetwork] = useState(false);
+  const [errorNetwork, setErrorNetwork] = useState<string | null>(null);
+  const [showRequests, setShowRequests] = useState(false);
+  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [removingId, setRemovingId] = useState<string | null>(null);
+
+  const getConnectionStatus = (userId: string): 'connected' | 'sent' | 'received' | 'none' => {
+    // Check if already connected
+    if (networkConnections.some(conn => conn._id === userId)) {
+      return 'connected';
+    }
+    
+    // Check if request already sent
+    if (sentRequests.some(req => req._id === userId)) {
+      return 'sent';
+    }
+    
+    // Check if received request pending
+    if (receivedRequests.some(req => req._id === userId)) {
+      return 'received';
+    }
+    
+    return 'none';
+  };
 
   // FETCH CHATS
   const fetchChats = async () => {
@@ -128,6 +159,28 @@ const Connect = () => {
     }
   };
 
+  // FETCH NETWORK DATA
+  const fetchNetworkData = async () => {
+    if (!token) return;
+    setLoadingNetwork(true);
+    setErrorNetwork(null);
+    try {
+      const [networkData, requestsData] = await Promise.all([
+        networkService.getNetwork(token),
+        networkService.getConnectionRequests(token)
+      ]);
+
+      setNetworkConnections(networkData.connections || []);
+      setReceivedRequests(requestsData.received || []);
+      setSentRequests(requestsData.sent || []);
+    } catch (error) {
+      setErrorNetwork(error instanceof Error ? error.message : 'Failed to load network');
+      console.error('Error fetching network:', error);
+    } finally {
+      setLoadingNetwork(false);
+    }
+  };
+
   // Load data based on active tab
   useEffect(() => {
     if (activeTab === "inbox") {
@@ -136,6 +189,8 @@ const Connect = () => {
       fetchConnections();
     } else if (activeTab === "saved") {
       fetchSavedListings();
+    } else if (activeTab === "network") {
+      fetchNetworkData(); // Assuming network tab shows connections for now
     }
   }, [activeTab]);
 
@@ -187,12 +242,80 @@ const Connect = () => {
     }
   };
 
+  // HANDLE ACCEPT CONNECTION REQUEST
+  const handleAcceptRequest = async (fromUserId: string) => {
+    if (!token) return;
+    try {
+        setProcessingId(fromUserId);
+      await networkService.acceptConnectionRequest(fromUserId, token);
+      setReceivedRequests(prev => prev.filter(req => req._id !== fromUserId));
+
+      await fetchNetworkData();
+
+    } catch (error) {
+      console.error('Error accepting connection request:', error);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  // HANDLE DECLINE CONNECTION REQUEST
+  const handleDeclineRequest = async (fromUserId: string) => {
+    if (!token) return;
+    try {
+        setProcessingId(fromUserId);
+      await networkService.declineConnectionRequest(fromUserId, token);
+      setReceivedRequests(prev => prev.filter(req => req._id !== fromUserId));
+    } catch (error) {
+        setErrorNetwork(error instanceof Error ? error.message : 'Failed to decline connection request');
+      console.error('Error declining connection request:', error);
+    } finally {
+      setProcessingId(null);
+    }
+    };
+
+   // HANDLE REMOVE CONNECTION
+   const handleRemoveConnection = async (userId: string) => {
+    if (!token) return;
+    
+    if (!confirm('Are you sure you want to remove this connection?')) {
+      return;
+    }
+    
+    try {
+        setRemovingId(userId);
+      await networkService.removeConnection(userId, token);
+      setNetworkConnections(prev => prev.filter(connection => connection._id !== userId));
+    } catch (error) {
+        setErrorNetwork(error instanceof Error ? error.message : 'Failed to remove connection');
+      console.error('Error removing connection:', error);
+    } finally {
+      setRemovingId(null);
+    }
+  };
+
   const getOtherParticipant = (chat: Chat) => {
     return chat.participantIds.find((p) => p._id !== user?._id);
   };
 
   const getLastMessage = (chat: Chat) => {
     return chat.messages[chat.messages.length - 1];
+  };
+
+    // HANDLE SEND CONNECTION REQUEST
+  const handleSendConnectionRequest = async (targetUserId: string) => {
+    if (!token) return;
+    try {
+      setProcessingId(targetUserId);
+      await networkService.sendConnectionRequest(targetUserId, token);
+      // Show success message or refetch network data
+      await fetchNetworkData();
+    } catch (error) {
+      setErrorNetwork(error instanceof Error ? error.message : 'Failed to send connection request');
+      console.error('Error sending connection request:', error);
+    } finally {
+      setProcessingId(null);
+    }
   };
 
   return (
@@ -236,6 +359,23 @@ const Connect = () => {
             {connections.length > 0 && (
               <span className="ml-auto bg-villageRed text-white text-xs px-2 py-1 rounded-full">
                 {connections.length}
+              </span>
+            )}
+          </button>
+
+          <button 
+            onClick={() => setActiveTab("network")}
+            className={`w-full flex items-center gap-3 px-6 py-4 border-l-4 transition ${
+              activeTab === "network"
+                ? "bg-white border-villageRed text-villageRed"
+                : "border-transparent text-gray-600 hover:bg-gray-100"
+            }`}
+          >
+            <UserPlus size={20} />
+            <span className="font-medium">My Network</span>
+            {(networkConnections.length + receivedRequests.length) > 0 && (
+              <span className="ml-auto bg-villageRed text-white text-xs px-2 py-1 rounded-full">
+                {networkConnections.length + receivedRequests.length}
               </span>
             )}
           </button>
@@ -302,13 +442,99 @@ const Connect = () => {
                               {isUnread}
                             </span>
                           )}
+                        </div>
                         <button
                           onClick={(e) => handleDeleteChat(chat._id, e)}
                           disabled={deletingId === chat._id}
-                          className="mt-4 mr-4 text-sm text-red-500 hover:text-red-600 disabled:opacity-50"
+                          className="text-sm text-red-500 hover:text-red-600 disabled:opacity-50"
                         >
                           {deletingId === chat._id ? 'Deleting...' : 'Delete'}
                         </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+                     {/* CONNECTIONS TAB */}
+          {activeTab === "connections" && (
+            <div>
+              <h2 className="text-2xl font-bold mb-6">Your Connections</h2>
+              
+              {loadingConnections ? (
+                <p>Loading...</p>
+              ) : connections.length === 0 ? (
+                <p className="text-gray-500">No connections yet.</p>
+              ) : (
+                <div className="sm:w-full md:w-full lg:w-2/3 grid grid-cols-2 gap-4">
+                  {connections.map((connection) => {
+                    const status = getConnectionStatus(connection._id);
+                    
+                    return (
+                      <div
+                        key={connection._id}
+                        className="p-4 bg-white border rounded-lg"
+                      >
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-12 h-12 rounded-full bg-villageRed text-white flex items-center justify-center font-bold text-lg">
+                            {connection.firstName[0]}{connection.lastName[0]}
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-semibold">{connection.firstName} {connection.lastName}</p>
+                            <p className="text-sm text-gray-500">{connection.email}</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleStartChat(connection)}
+                            className="flex-1 bg-villagePink text-black py-2 rounded-lg font-medium hover:bg-gray-200 hover:text-black transition"
+                          >
+                            Message
+                          </button>
+                          
+                          {status === 'connected' ? (
+                            <button
+                              disabled
+                              className="flex-1 bg-green-200 text-white py-2 rounded-lg font-medium flex items-center justify-center gap-2 cursor-default"
+                            >
+                              <UserCheck size={16} />
+                              Connected
+                            </button>
+                          ) : status === 'sent' ? (
+                            <button
+                              disabled
+                              className="flex-1 bg-yellow-200 text-gray-700 py-2 rounded-lg font-medium flex items-center justify-center gap-2 cursor-default"
+                            >
+                              <Loader size={16} />
+                              Sent
+                            </button>
+                          ) : status === 'received' ? (
+                            <button
+                                onClick={() => handleAcceptRequest(connection._id)}
+                                disabled={processingId === connection._id}
+                              className="flex-1 bg-villagePink text-black py-2 rounded-lg font-medium hover:bg-gray-200 hover:text-black transition"
+                            > {processingId === connection._id ? (
+                                <Loader size={16} className="animate-spin" />
+                              ) : ( 
+                              <UserCheck size={16} />)}
+                              Accept
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleSendConnectionRequest(connection._id)}
+                              disabled={processingId === connection._id}
+                              className="flex-1 bg-villageRed text-white py-2 rounded-lg font-medium hover:bg-villagePink hover:text-black disabled:opacity-50 flex items-center justify-center gap-2 transition"
+                            >
+                              {processingId === connection._id ? (
+                                <Loader size={16} className="animate-spin" />
+                              ) : (
+                                <UserPlus size={16} />
+                              )}
+                              Add
+                            </button>
+                          )}
                         </div>
                       </div>
                     );
@@ -318,39 +544,161 @@ const Connect = () => {
             </div>
           )}
 
-          {/* CONNECTIONS TAB */}
-          {activeTab === "connections" && (
-            <div>
-              <h2 className="text-2xl font-bold mb-6">Your Connections</h2>
-              {loadingConnections ? (
-                <p>Loading...</p>
-              ) : connections.length === 0 ? (
-                <p className="text-gray-500">No connections yet.</p>
-              ) : (
-                <div className="grid grid-cols-2 gap-4">
-                  {connections.map((connection) => (
-                    <div
-                      key={connection._id}
-                      className="p-4 bg-white border rounded-lg"
-                    >
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-12 h-12 rounded-full bg-villageRed text-white flex items-center justify-center font-bold text-lg">
-                          {connection.firstName[0]}{connection.lastName[0]}
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-semibold">{connection.firstName} {connection.lastName}</p>
-                          <p className="text-sm text-gray-500">{connection.email}</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => handleStartChat(connection)}
-                        className="w-full bg-villageRed text-white py-2 rounded-lg font-medium hover:bg-villagePink hover:text-black transition"
-                      >
-                        Message
-                      </button>
-                    </div>
-                  ))}
+          {/* NETWORK TAB */}
+          {activeTab === "network" && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold">My Network</h2>
+
+              {errorNetwork && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+                  <p>Error: {errorNetwork}</p>
+                  <button
+                    onClick={fetchNetworkData}
+                    className="mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+                  >
+                    Try Again
+                  </button>
                 </div>
+              )}
+
+              {loadingNetwork ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader size={32} className="text-villageRed animate-spin" />
+                  <p className="text-gray-600 ml-4">Loading...</p>
+                </div>
+              ) : (
+                <>
+                  {/* Network Stats */}
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="bg-white p-4 rounded-lg border border-gray-200">
+                      <p className="text-sm text-gray-600">My Connections</p>
+                      <p className="text-3xl font-bold text-villageRed">{networkConnections.length}</p>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg border border-gray-200">
+                      <p className="text-sm text-gray-600">Received Requests</p>
+                      <p className="text-3xl font-bold text-villageRed">{receivedRequests.length}</p>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg border border-gray-200">
+                      <p className="text-sm text-gray-600">Sent Requests</p>
+                      <p className="text-3xl font-bold text-villageRed">{sentRequests.length}</p>
+                    </div>
+                  </div>
+                  
+                  {/* Connection Requests Section */}
+                  {(receivedRequests.length > 0 || sentRequests.length > 0) && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <button
+                        onClick={() => setShowRequests(!showRequests)}  
+                        className="w-full text-left font-medium text-villageRed hover:text-villagePink transition flex items-center gap-2"
+                      >
+                        {showRequests ? "Hide" : "Show"} Connection Requests ({receivedRequests.length} received, {sentRequests.length} sent)
+                      </button>
+
+                      {showRequests && (
+                        <div className="mt-4 space-y-4">
+                          {receivedRequests.length > 0 && (
+                            <div>
+                              <h4 className="text-lg font-semibold mb-2">Received Requests</h4>
+                              <div className="space-y-2">
+                                {receivedRequests.map(req => (
+                                  <div key={req._id} className="flex items-center justify-between bg-white p-3 rounded-lg border">
+                                    <div>
+                                      <p className="font-medium">{req.firstName} {req.lastName}</p>
+                                      <p className="text-sm text-gray-500">{req.email}</p>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <button
+                                        onClick={() => handleAcceptRequest(req._id)}
+                                        disabled={processingId === req._id}
+                                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 flex items-center gap-1"
+                                      >
+                                        {processingId === req._id ? <Loader size={14} className="animate-spin" /> : <UserCheck size={14} />}
+                                        Accept
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeclineRequest(req._id)}
+                                        disabled={processingId === req._id}
+                                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 flex items-center gap-1"
+                                      >
+                                        {processingId === req._id ? <Loader size={14} className="animate-spin" /> : <UserX size={14} />}
+                                        Decline
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {sentRequests.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-semibold mb-2">Sent Requests</h4>
+                              <div className="space-y-2">
+                                {sentRequests.map(req => (
+                                  <div key={req._id} className="flex items-center justify-between bg-white p-3 rounded-lg border">
+                                    <div>
+                                      <p className="font-medium">{req.firstName} {req.lastName}</p>
+                                      <p className="text-xs text-gray-500">{req.email}</p>
+                                    </div>
+                                    <span className="px-3 text-xs text-yellow-500 font-medium">Pending</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* My Connections */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">My Connections ({networkConnections.length})</h3>
+                    {networkConnections.length === 0 ? (
+                      <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+                        <Users size={48} className="mx-auto text-gray-300 mb-4" />
+                        <p className="text-gray-500 text-sm">You haven't connected with anyone yet.</p>
+                        <p className="text-xs text-gray-400">Send connection requests to start building your network.</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {networkConnections.map((connection) => (
+                          <div
+                            key={connection._id}
+                            className="p-4 bg-white border rounded-lg"
+                          >
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-12 h-12 rounded-full bg-villageRed text-white flex items-center justify-center font-bold text-lg">
+                                {connection.firstName[0]}{connection.lastName[0]}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-semibold">{connection.firstName} {connection.lastName}</p>
+                                <p className="text-sm text-gray-500 truncate">{connection.email}</p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleStartChat(connection)}
+                                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-villageRed text-white rounded-lg font-medium hover:bg-villagePink hover:text-black transition text-sm"
+                              >
+                                <MessageCircle size={16} />
+                                Message
+                              </button>
+                              <button  
+                                onClick={() => handleRemoveConnection(connection._id)}
+                                disabled={removingId === connection._id}
+                                className="px-3 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50"
+                              >
+                                {removingId === connection._id ? <Loader size={16} className="animate-spin" /> : <UserX size={16} />}
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
             </div>
           )}
@@ -358,18 +706,18 @@ const Connect = () => {
           {/* SAVED LISTINGS TAB */}
           {activeTab === "saved" && (
             <div>
-                <h2 className="text-2xl font-bold mb-6">Saved Listings</h2>
-                {loadingSaved ? (
-                    <p>Loading...</p>
-                ) : savedListings.length === 0 ? (
-                    <p className="text-gray-500">No saved listings yet.</p>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {savedListings.map((listing) => (
-                            <ListingCard key={listing._id} listing={listing} detailsButton={true} savedButton={false} onClick={() => window.location.href = `/listings/${listing._id}`} />
-                        ))}
-                    </div>
-                )}
+              <h2 className="text-2xl font-bold mb-6">Saved Listings</h2>
+              {loadingSaved ? (
+                <p>Loading...</p>
+              ) : savedListings.length === 0 ? (
+                <p className="text-gray-500">No saved listings yet.</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {savedListings.map((listing) => (
+                    <ListingCard key={listing._id} listing={listing} detailsButton={true} savedButton={false} onClick={() => window.location.href = `/listings/${listing._id}`} />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

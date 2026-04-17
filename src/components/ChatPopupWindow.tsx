@@ -79,47 +79,45 @@ export const ChatPopupWindow = () => {
     }, [chatId, popup.isOpen, token]);
 
     useEffect(() => {
-    if (!socket || !chatId) return;
-    
-    const handleMessageReceive = ({ chatId: incomingChatId, message }: { chatId: string; message: ChatMessage }) => {
-        if (incomingChatId !== chatId) return;
-        setChat((prevChat) => (prevChat ? { ...prevChat, messages: [...prevChat.messages, message] } : prevChat));
-        
-        // ← ADD THIS: Emit update so Connect page list refreshes
-        socket.emit("chat:updated", { chatId });
-    };
-
-    socket.on("message:receive", handleMessageReceive);
-
-    return () => {
-        socket.off("message:receive", handleMessageReceive);
-    };
-}, [socket, chatId]);
-
-    useEffect(() => {
         if (!socket || !chatId) return;
         
-        socket.on("message:receive", ({ chatId: incomingChatId, message }: { chatId: string; message: ChatMessage }) => {
+        const handleMessageReceive = ({ chatId: incomingChatId, message }: { chatId: string; message: ChatMessage }) => {
             if (incomingChatId !== chatId) return;
-            setChat((prevChat) => (prevChat ? { ...prevChat, messages: [...prevChat.messages, message] } : prevChat));
-        });
+            
+            // Check if message already exists to prevent duplicates
+            setChat((prevChat) => {
+                if (!prevChat) return prevChat;
+                
+                const messageExists = prevChat.messages.some(msg => msg._id === message._id);
+                if (messageExists) return prevChat;
+                
+                return { ...prevChat, messages: [...prevChat.messages, message] };
+            });
+            
+            // Emit update so Connect page list refreshes
+            socket.emit("chat:updated", { chatId });
+        };
 
-        socket.on("typing:start", ({ chatId: typingChatId, senderName }: { chatId: string; senderName: string }) => {
+        const handleTypingStart = ({ chatId: typingChatId, senderName }: { chatId: string; senderName: string }) => {
             if (typingChatId !== chatId) return;
             setIsTyping(true);
             setTypingName(senderName);
-        });
+        };
         
-        socket.on("typing:stop", ({ chatId: stopTypingChatId }: { chatId: string }) => {
+        const handleTypingStop = ({ chatId: stopTypingChatId }: { chatId: string }) => {
             if (stopTypingChatId !== chatId) return;
             setIsTyping(false);
             setTypingName("");
-        });
+        };
+
+        socket.on("message:receive", handleMessageReceive);
+        socket.on("typing:start", handleTypingStart);
+        socket.on("typing:stop", handleTypingStop);
 
         return () => {
-            socket.off("message:receive");
-            socket.off("typing:start");
-            socket.off("typing:stop");
+            socket.off("message:receive", handleMessageReceive);
+            socket.off("typing:start", handleTypingStart);
+            socket.off("typing:stop", handleTypingStop);
         };
     }, [socket, chatId]);
 
