@@ -157,7 +157,7 @@ export const EditListingPage = () => {
             name="description"
             value={formData.description}
             onChange={handleChange}
-            className="px-4 py-2 border border-gray-700 rounded grow"
+            className="w-full px-4 py-2 border border-gray-700 rounded overflow-scroll"
             placeholder="Describe what you're offering or need help with..."
             required
           />

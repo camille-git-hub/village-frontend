@@ -14,7 +14,7 @@ type Props = {
 
 export const ListingCard = ({ listing, onClick, onSave, onDelete, onEdit, showActions, detailsButton, savedButton, isSaved }: Props) => (
   <div
-    className="w-full border rounded-lg p-4 shadow-sm mb-4"
+    className="w-full overflow-none border rounded-lg p-4 shadow-sm"
   >
     <div className="flex items-center justify-between">
     <h2 className="text-xl font-bold mb-1">{listing.title}</h2>
@@ -25,7 +25,7 @@ export const ListingCard = ({ listing, onClick, onSave, onDelete, onEdit, showAc
     </span>
     <p className="text-gray-600 text-sm mt-2 line-clamp-2">{listing.description}</p>
     <p className="text-xs text-gray-400 mt-2">📍 {listing.neighborhood}</p>
-    <p className="text-sm text-gray-800 mt-2 ml-2 font-semibold">{listing.price ? `€/h${listing.price.toFixed(2)}` : ''}</p>
+    <p className="text-sm text-gray-800 mt-2 ml-1 font-semibold">{listing.price ? `${listing.price.toFixed(2)} €/hour` : ''}</p>
 
     {showActions && (
       <div className="mt-4 flex gap-2">
@@ -64,8 +64,8 @@ export const ListingCard = ({ listing, onClick, onSave, onDelete, onEdit, showAc
         }}
         className={`btn border p-4 mt-4 ml-2 cursor-pointer ${
         isSaved 
-        ? 'bg-villageRed text-white border-villageRed' 
-        : 'border-villageRed text-villageRed hover:bg-villageRed hover:text-white'
+        ? 'bg-emerald-500 text-white' 
+        : 'bg-gray-100 text-gray-700 hover:bg-villagePink hover:text-black'
       }`}
       >
       {isSaved ? 'Saved' : 'Save for later'}
