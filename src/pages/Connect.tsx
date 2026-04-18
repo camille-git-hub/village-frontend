@@ -500,7 +500,7 @@ const Connect = () => {
                           {status === 'connected' ? (
                             <button
                               disabled
-                              className="flex-1 bg-green-200 text-white py-2 rounded-lg font-medium flex items-center justify-center gap-2 cursor-default"
+                              className="flex-1 bg-emerald-500 text-white py-2 rounded-lg font-medium flex items-center justify-center gap-2 cursor-default"
                             >
                               <UserCheck size={16} />
                               Connected

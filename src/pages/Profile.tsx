@@ -247,7 +247,7 @@ const Profile = () => {
             <Home size={20} />
             <span className="font-medium">My Listings</span>
             {listings.length > 0 && (
-              <span className="ml-auto bg-villageRed text-white text-xs px-2 py-1 rounded-full">
+              <span className="ml-auto text-gray-500 text-xs px-2 py-1 rounded-full">
                 {listings.length}
               </span>
             )}

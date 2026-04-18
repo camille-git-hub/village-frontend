@@ -17,7 +17,7 @@ const Navbar = () => {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div />
-          <ul className="text-lg font-sans hidden md:flex gap-3 bg-gray-200 rounded px-2 py-1 text-sm">
+          <ul className="text-lg lg:text-xl text-gray-800 font-sans hidden mt-2 md:flex gap-3 bg-gray-200 rounded px-2 py-1 text-sm">
             <li><Link to={isLoggedin ? "/listings" : "/login"} className="px-3 py-1 rounded hover:border hover:border-villageRed">Listings</Link></li>
             <li><Link to={isLoggedin ? "/explore" : "/login"} className="px-3 py-1 rounded hover:border hover:border-villageRed">Explore</Link></li>
             <li><Link to={isLoggedin ? "/connect" : "/login"} className="px-3 py-1 rounded hover:border hover:border-villageRed">Connect</Link></li>
@@ -28,7 +28,7 @@ const Navbar = () => {
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
           {isOpen && (
-            <ul className="font-display text-lg mt-2 bg-gray-200 rounded px-2 py-1 text-sm">
+            <ul className="text-lg mt-2 bg-gray-200 rounded px-2 py-1 text-sm">
               <li><Link to={isLoggedin ? "/listings" : "/login"} className="block px-3 py-1 rounded hover:border hover:border-villageRed">Listings</Link></li>
               <li><Link to={isLoggedin ? "/explore" : "/login"} className="block px-3 py-1 rounded hover:border hover:border-villageRed">Explore</Link></li>
               <li><Link to={isLoggedin ? "/connect" : "/login"} className="block px-3 py-1 rounded hover:border hover:border-villageRed">Connect</Link></li>
