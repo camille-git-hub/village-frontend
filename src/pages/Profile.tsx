@@ -406,7 +406,7 @@ const Profile = () => {
                     </select>
                   </div>
                   <div>
-                    <label htmlFor="price" className="block text-sm font-medium mb-2">Price (optional)</label>
+                    <label htmlFor="price" className="block text-sm font-medium mb-2">Price per hour (optional)</label>
                     <input
                       name="price"
                       type="number"

@@ -3,10 +3,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { HAMBURG_NEIGHBORHOODS } from '../utils/neightborhoods.ts';
 import { HAMBURG_SERVICES } from '../utils/listing_services.ts';
+import type { FormDataType } from '../types/listing.ts';
 
 export const EditListingPage = () => {
   const { id } = useParams<{ id: string }>();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormDataType>({
     title: '',
     category: '',
     description: '',
@@ -14,6 +15,8 @@ export const EditListingPage = () => {
     address: '',
     price: undefined,
     city: 'hamburg',
+    lat: null,
+    lng: null,
   });
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -48,6 +51,8 @@ export const EditListingPage = () => {
           city: listing.city || 'hamburg',
           price: listing.price || undefined,
           address: listing.address || '', 
+          lat: listing.lat || null,
+          lng: listing.lng || null,
         });
       } catch (err) {
         setError('Failed to load listing. Please try again.');
@@ -64,6 +69,11 @@ export const EditListingPage = () => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const value = e.target.value;
+  setFormData(prev => ({ ...prev, price: value ? parseFloat(value) : undefined }));
+};
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -182,7 +192,7 @@ export const EditListingPage = () => {
             name="price"
             type="number"
             value={formData.price || ''}
-            onChange={handleChange}
+            onChange={handlePriceChange}
             className="px-4 py-2 border border-gray-700 rounded grow"
             placeholder="Price per hour (optional)"
           />
