@@ -433,7 +433,7 @@ const Connect = () => {
                             <div>
                               <p className="font-semibold">{other?.firstName} {other?.lastName}</p>
                               <p className="text-sm text-gray-600">
-                                {last?.content.slice(0, 50)}{last && last.content.length > 50 ? '...' : ''}
+                                {last?.content}
                               </p>
                             </div>
                           </div>
@@ -500,7 +500,7 @@ const Connect = () => {
                           {status === 'connected' ? (
                             <button
                               disabled
-                              className="flex-1 bg-emerald-500 text-white py-2 rounded-lg font-medium flex items-center justify-center gap-2 cursor-default"
+                              className="w-full flex-1 bg-emerald-500 text-white py-2 rounded-lg font-medium flex items-center justify-center gap-2 cursor-default"
                             >
                               <UserCheck size={16} />
                               Connected

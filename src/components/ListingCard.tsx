@@ -25,6 +25,7 @@ export const ListingCard = ({ listing, onClick, onSave, onDelete, onEdit, showAc
     </span>
     <p className="text-gray-600 text-sm mt-2 line-clamp-2">{listing.description}</p>
     <p className="text-xs text-gray-400 mt-2">📍 {listing.neighborhood}</p>
+    <p className="text-sm text-gray-800 mt-2 ml-2 font-semibold">{listing.price ? `€/h${listing.price.toFixed(2)}` : ''}</p>
 
     {showActions && (
       <div className="mt-4 flex gap-2">

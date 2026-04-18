@@ -2,7 +2,7 @@ import { use, useState, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext.tsx";
 import { Link, useLocation } from "react-router";
 import { ListingCard } from "../components/ListingCard.tsx";
-import type { Listing } from "../types/listing.ts";
+import type { Listing, FormDataType } from "../types/listing.ts";
 import { Settings, Plus, Home } from "lucide-react";
 import { NEIGHBORHOODS } from "../utils/neightborhoods.ts";
 import { HAMBURG_SERVICES } from "../utils/listing_services.ts";
@@ -23,12 +23,13 @@ const Profile = () => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Form state for New Listing
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormDataType>({
     title: '',
     category: '',
     description: '',
     neighborhood: '',
     city: 'hamburg',
+    price: undefined,
     address: '',
     lat: null as number | null,
     lng: null as number | null,
@@ -103,6 +104,11 @@ const Profile = () => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const value = e.target.value;
+  setFormData(prev => ({ ...prev, price: value ? parseFloat(value) : undefined }));
+};
 
   const handleAddressChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -188,6 +194,7 @@ const Profile = () => {
         description: '',
         neighborhood: '',
         city: 'hamburg',
+        price: undefined,
         address: '',
         lat: null,
         lng: null,
@@ -397,6 +404,20 @@ const Profile = () => {
                         <option key={hood} value={hood}>{hood}</option>
                       ))}
                     </select>
+                  </div>
+                  <div>
+                    <label htmlFor="price" className="block text-sm font-medium mb-2">Price (optional)</label>
+                    <input
+                      name="price"
+                      type="number"
+                      id="price"
+                      value={formData.price || ''}
+                      onChange={handlePriceChange}
+                      placeholder="Enter price"
+                      min="0"
+                      step="0.01"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-villageRed"
+                    />
                   </div>
                 </div>
 

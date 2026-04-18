@@ -66,12 +66,20 @@ export function MapView() {
       {filteredListings.map((listing) => (
         <Marker key={listing._id} position={[listing.lat, listing.lng]}>
           <Popup className="popup flex-col">
-            <div className="font-bold text-lg mb-3 text-villageRed">{listing.title}</div>
-            {listing.description}
-            <div className="text-sm text-gray-500 mt-2">{listing.neighborhood}</div>
-            <button className="btn text-black bg-villagePink mt-2" onClick={() => window.location.href = `/listings/${listing._id}`}>
+            <div className="font-bold text-lg text-villageRed">{listing.title}</div>
+            <span className="text-xs text-gray-500 mb-2 italic px-2 rounded-full">
+              - Posted on {new Date(listing.createdAt).toLocaleDateString()} -
+            </span>
+            <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600 mt-4">
+              {listing.description}
+            </span>
+            </div>
+            <p className="text-xs text-gray-400 mt-2">📍 {listing.neighborhood}</p>
+            <button className="btn text-black bg-villagePink" onClick={() => window.location.href = `/listings/${listing._id}`}>
               View Details
             </button>
+      
           </Popup>
         </Marker>
       ))}

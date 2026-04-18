@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { HAMBURG_NEIGHBORHOODS } from '../utils/neightborhoods.ts';
+import { HAMBURG_SERVICES } from '../utils/listing_services.ts';
 
 export const EditListingPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -10,6 +11,8 @@ export const EditListingPage = () => {
     category: '',
     description: '',
     neighborhood: '',
+    address: '',
+    price: undefined,
     city: 'hamburg',
   });
   const [loading, setLoading] = useState(false);
@@ -43,6 +46,8 @@ export const EditListingPage = () => {
           description: listing.description || '',
           neighborhood: listing.neighborhood || '',
           city: listing.city || 'hamburg',
+          price: listing.price || undefined,
+          address: listing.address || '', 
         });
       } catch (err) {
         setError('Failed to load listing. Please try again.');
@@ -123,15 +128,18 @@ export const EditListingPage = () => {
         </label>
 
         <label className="flex items-center gap-2">
-          <input
+          <select
             name="category"
-            type="text"
             value={formData.category}
             onChange={handleChange}
             className="px-4 py-2 border border-gray-700 rounded grow"
-            placeholder="Category (e.g., Cleaning, Tutoring)"
             required
-          />
+          >
+            <option value="">Select Category</option>
+            {(HAMBURG_SERVICES).map(service => (
+              <option key={service} value={service}>{service}</option>
+            ))}
+          </select>
         </label>
 
         <label className="flex items-center gap-2">
@@ -158,6 +166,26 @@ export const EditListingPage = () => {
               <option key={hood} value={hood}>{hood}</option>
             ))}
           </select>
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            name="address"
+            type="text"
+            value={formData.address}
+            onChange={handleChange}
+            className="px-4 py-2 border border-gray-700 rounded grow"
+            placeholder="Address"
+          />
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            name="price"
+            type="number"
+            value={formData.price || ''}
+            onChange={handleChange}
+            className="px-4 py-2 border border-gray-700 rounded grow"
+            placeholder="Price per hour (optional)"
+          />
         </label>
 
         <button type="submit" disabled={loading} className="px-4 py-2 bg-villageRed text-white font-bold grow rounded cursor-pointer">
