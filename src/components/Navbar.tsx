@@ -35,7 +35,7 @@ const Navbar = () => {
               <li><Link to={isLoggedin ? "/profile" : "/login"} className="block px-3 py-1 rounded hover:border hover:border-villageRed">Profile</Link></li>
             </ul>
           )}
-        <div><a href={isLoggedin ? "/listings" : "/"} className="rounded border p-4 px-4 py-2 border-villageRed mt-4 text-6xl font-semibold">Village</a></div>
+        <Link to={isLoggedin ? "/listings" : "/"} className="rounded border p-4 px-4 py-2 border-villageRed mt-4 text-6xl font-semibold">Village</Link>
       </div>
     </nav>
   );
