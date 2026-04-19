@@ -23,6 +23,15 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
          }
          
         console.log('Checking authentication status...');
+
+        const currentToken = localStorage.getItem("accessToken");
+        if (!currentToken) {
+          console.log('No access token found, user is not logged in');
+          setIsLoggedin(false);
+          setIsLoading(false);
+          return;
+        }
+
         const response = await fetch(`${AUTH_URL}/auth/me`, {
           method: "GET",
           credentials: "include",
@@ -55,7 +64,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     checkAuth();
-  }, []);
+  }, [token]);
 
   const handleLogin = useCallback(async (data: LoginFormData) => {
     try {
@@ -175,16 +184,17 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       console.log('Logout successful');
       localStorage.removeItem("accessToken");
+      setToken(null);
       } catch (error) {
       console.log(error);
       } finally {
-      navigate("/login");
+      navigate("/");
       setIsLoggedin(false);
       setUser(null);
       setToken(null);
       setIsLoading(false);
       }
-  }, []);
+  }, [token, navigate]);
 
   const handleDeleteAccount = useCallback(async () => {
     setIsLoading(true);
