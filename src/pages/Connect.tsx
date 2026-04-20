@@ -518,7 +518,7 @@ const Connect = () => {
                             <button
                                 onClick={() => handleAcceptRequest(connection._id)}
                                 disabled={processingId === connection._id}
-                              className="flex-1 bg-villagePink text-black py-2 rounded-lg font-medium hover:bg-gray-200 hover:text-black transition"
+                              className="flex-1 bg-yellow-200 text-gray-700 py-2 rounded-lg font-medium flex items-center justify-center gap-2 cursor-default"
                             > {processingId === connection._id ? (
                                 <Loader size={16} className="animate-spin" />
                               ) : ( 
