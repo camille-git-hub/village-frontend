@@ -74,8 +74,8 @@ export const ListingsPage = () => {
         const idsData = await idsResponse.json();
         const listingIds = idsData.data || [];
 
-        console.log('Fetched saved listing IDs:', listingIds);
-        setSavedListings(listingIds);  // ← Just set the IDs directly
+        console.log('Fetched saved listing IDs');
+        setSavedListings(listingIds); 
         
     } catch (error) {
         console.error("Error fetching saved listings:", error);
@@ -103,7 +103,7 @@ export const ListingsPage = () => {
         if (isSaved) {
             setSavedListings(prevSavedListings => prevSavedListings.filter(id => id !== listingId));
         } else {
-            console.log('Listing saved successfully, updating state');
+            console.log('Listing saved successfully');
             setSavedListings(prevSavedListings => [...prevSavedListings, listingId]);
             }
 
@@ -118,11 +118,6 @@ export const ListingsPage = () => {
             fetchSavedListings();
         }
     }, [filters]);
-
-    useEffect(() => {
-        console.log('Saved listings updated:', savedListings);
-        console.log('Current listings:', listings);
-    }, [savedListings, listings]);
 
   return (
     <div className="p-4 w-full lg:ml-40 lg:w-1/2 sm:w-full">

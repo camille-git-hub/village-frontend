@@ -32,8 +32,6 @@ export function MapView() {
                 }
                 console.log('Fetched listings successfully');
                 const data = await response.json();
-                console.log('One listing data:', data.data?.[0]);
-                console.log('All listings data:', data.data);
                 setListings(data.data);
             } catch (error) {
                 console.error('Error fetching listings:', error);

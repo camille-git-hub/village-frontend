@@ -41,7 +41,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
         if (response.ok) {
           const userData = await response.json();
-          console.log('Authenticated user:', userData);
+          console.log('User authenticated successfully');
           setUser({
             _id: userData._id,
             email: userData.email,
@@ -151,7 +151,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (profileResponse.ok) {
         const userData = await profileResponse.json();
-        console.log('User data received:', userData);
+        console.log('User data received');
         setUser({
           _id: userData._id,
           email: userData.email,

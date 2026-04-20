@@ -61,7 +61,7 @@ const ListingDetailsPage = () => {
         const idsData = await idsResponse.json();
         const listingIds = idsData.data || [];
 
-        console.log('Fetched saved listing IDs:', listingIds);
+        console.log('Fetched saved listing IDs');
         setSavedListings(listingIds);  // ← Just set the IDs directly
         
     } catch (error) {
@@ -111,7 +111,7 @@ const ListingDetailsPage = () => {
                     throw new Error('Failed to fetch listing');
                 }
                 const data = await response.json();
-                console.log('Fetched listing successfully:', data);
+                console.log('Fetched listing successfully');
                 setListing(data.data || data); 
             } catch (error) {
                 console.error('Error fetching listing:', error);
