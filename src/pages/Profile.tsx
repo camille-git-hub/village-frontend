@@ -54,7 +54,7 @@ const Profile = () => {
     setLoadingListings(true);
     try {
         const token = localStorage.getItem('accessToken');
-        console.log('Token being sent:', token);
+        console.log('Token is being sent');
       const response = await fetch(`${API_URL}/listings/owner/${user._id}`, { 
         method: "GET", 
         credentials: "include" ,
@@ -163,7 +163,7 @@ const Profile = () => {
         }
 
         const token = localStorage.getItem('accessToken');
-        console.log('Token being sent:', token);
+        console.log('Token is being sent');
 
       const response = await fetch(`${API_URL}/listings`, {
         method: 'POST',

@@ -85,7 +85,7 @@ export const EditListingPage = () => {
         throw new Error('No listing ID provided');
       }
       const token = localStorage.getItem('accessToken');
-      console.log('Token being sent: ', token);
+      console.log('Token is being sent');
 
       const response = await fetch(`${API_URL}/listings/${id}`, {
         method: 'PUT',
