@@ -423,7 +423,7 @@ const Connect = () => {
                       <div
                         key={chat._id}
                         onClick={() => openChat(chat._id)}
-                        className="p-4 bg-white border rounded-lg cursor-pointer hover:shadow-md transition w-1/2"
+                        className="p-4 bg-white border rounded-lg cursor-pointer hover:shadow-md transition lg:w-2/3"
                       >
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-center gap-3">
