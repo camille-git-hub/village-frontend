@@ -187,12 +187,13 @@ const Connect = () => {
       fetchChats();
     } else if (activeTab === "connections") {
       fetchConnections();
+      fetchNetworkData();
     } else if (activeTab === "saved") {
       fetchSavedListings();
     } else if (activeTab === "network") {
       fetchNetworkData(); // Assuming network tab shows connections for now
     }
-  }, [activeTab]);
+  }, [activeTab, token]);
 
   // HANDLE DELETE CHAT
   const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
