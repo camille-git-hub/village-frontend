@@ -132,7 +132,7 @@ const Connect = () => {
       const idsData = await idsResponse.json();
       const listingIds = idsData.data || [];
 
-      console.log('Fetched saved listing IDs:', listingIds);
+      console.log('Fetched saved listing IDs');
 
       if (listingIds.length > 0) {
         const listingsResponse = await fetch(`${API_URL}/listings`, {
